@@ -1,0 +1,63 @@
+@page "/Admin/StaffManagement"
+@model HRS_SmartBooking.Pages.Admin.StaffManagementModel
+@{
+    ViewData["Title"] = "Staff Management";
+}
+
+<section class="reception-page admin-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Staff</p>
+            <h1>Staff management</h1>
+            <p>Track roles, departments, performance metrics, and attendance.</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline-light">Add staff</button>
+            <button class="btn btn-gradient">Assign department</button>
+        </div>
+    </header>
+
+    <div class="data-card table-card">
+        <div class="card-header">
+            <h2>Staff list</h2>
+            <span class="badge badge-outline">@Model.Staff.Count staff</span>
+        </div>
+        <div class="responsive-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Performance</th>
+                        <th>Rating</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var staff in Model.Staff)
+                    {
+                        <tr>
+                            <td>@staff.Name</td>
+                            <td>@staff.Role</td>
+                            <td>@staff.Department</td>
+                            <td><span class="status">@staff.Status</span></td>
+                            <td>@staff.Performance</td>
+                            <td>@staff.Rating</td>
+                            <td class="actions">
+                                <button class="btn btn-icon btn-compact" title="Profile">
+                                    <i class="bi bi-person"></i>
+                                </button>
+                                <button class="btn btn-icon btn-compact" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+

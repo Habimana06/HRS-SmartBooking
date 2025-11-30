@@ -1,0 +1,63 @@
+@page "/Admin/DatabaseControl"
+@model HRS_SmartBooking.Pages.Admin.DatabaseControlModel
+@{
+    ViewData["Title"] = "Database Control";
+}
+
+<section class="reception-page admin-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Database</p>
+            <h1>Database control</h1>
+            <p>Tables overview, backups, optimize, clear logs, reset system (UI only).</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline-light">Optimize</button>
+            <button class="btn btn-gradient">Backup now</button>
+        </div>
+    </header>
+
+    <div class="data-card table-card">
+        <div class="card-header">
+            <h2>Tables</h2>
+        </div>
+        <div class="responsive-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Table</th>
+                        <th>Total rows</th>
+                        <th>Columns</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var table in Model.Tables)
+                    {
+                        <tr>
+                            <td>@table.Name</td>
+                            <td>@table.Rows</td>
+                            <td>@table.Columns</td>
+                            <td class="actions">
+                                <button class="btn btn-icon btn-compact">View</button>
+                                <button class="btn btn-icon btn-compact">Structure</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section-card danger">
+        <div class="card-header">
+            <h2>Reset & cleanup</h2>
+        </div>
+        <p>UI only. Provide confirm dialogs when wiring backend.</p>
+        <div class="button-row">
+            <button class="btn btn-outline-light">Clear logs</button>
+            <button class="btn btn-outline-light">Reset system</button>
+        </div>
+    </div>
+</section>
+

@@ -1,0 +1,117 @@
+@page "/Receptionist/Dashboard"
+@model HRS_SmartBooking.Pages.Receptionist.DashboardModel
+@{
+    ViewData["Title"] = "Receptionist Dashboard";
+}
+
+<section class="reception-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Operations pulse</p>
+            <h1>Dashboard overview</h1>
+            <p>Real-time widgets, occupancy intelligence, activity stream, and alert center styled for frontline agents.</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline-light">
+                <i class="bi bi-lightning-charge me-2"></i>
+                Quick actions
+            </button>
+            <button class="btn btn-gradient">
+                <i class="bi bi-plus-circle me-2"></i>
+                New reservation
+            </button>
+        </div>
+    </header>
+
+    <div class="metric-grid">
+        @foreach (var metric in Model.Metrics)
+        {
+            <article class="metric-card">
+                <div class="metric-icon">
+                    <i class="bi @metric.Icon"></i>
+                </div>
+                <div>
+                    <p class="metric-label">@metric.Title</p>
+                    <h3>@metric.Value</h3>
+                    <small>@metric.Detail</small>
+                </div>
+            </article>
+        }
+    </div>
+
+    <div class="insight-grid">
+        <article class="data-card chart-card">
+            <div class="card-header">
+                <h2>Daily bookings</h2>
+                <span class="badge badge-outline">Live</span>
+            </div>
+            <div class="sparkline">
+                @foreach (var point in Model.DailyBookings)
+                {
+                    <div class="spark-bar" style="height:@point.Value%">
+                        <span>@point.Label</span>
+                    </div>
+                }
+            </div>
+        </article>
+
+        <article class="data-card chart-card">
+            <div class="card-header">
+                <h2>Occupancy rate</h2>
+                <span class="badge badge-outline">This week</span>
+            </div>
+            <div class="sparkline line">
+                @foreach (var point in Model.OccupancyRate)
+                {
+                    <div class="spark-point" title="@point.Label">
+                        <span style="height:@point.Value%"></span>
+                        <small>@point.Label</small>
+                    </div>
+                }
+            </div>
+        </article>
+    </div>
+
+    <div class="split-grid">
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Activity feed</h2>
+                <button class="btn btn-icon btn-compact" title="Refresh">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+            </div>
+            <ul class="activity-list">
+                @foreach (var item in Model.Activity)
+                {
+                    <li>
+                        <div>
+                            <strong>@item.Title</strong>
+                            <p>@item.Detail</p>
+                        </div>
+                        <i class="bi bi-chevron-right"></i>
+                    </li>
+                }
+            </ul>
+        </article>
+
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Alerts & escalations</h2>
+                <span class="badge badge-warning">Needs attention</span>
+            </div>
+            <ul class="alert-list">
+                @foreach (var alert in Model.Alerts)
+                {
+                    <li class="@alert.Tone">
+                        <div>
+                            <strong>@alert.Title</strong>
+                            <p>@alert.Detail</p>
+                        </div>
+                        <button class="btn btn-outline-light btn-sm">Resolve</button>
+                    </li>
+                }
+            </ul>
+        </article>
+    </div>
+</section>
+

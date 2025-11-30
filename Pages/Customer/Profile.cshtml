@@ -1,0 +1,112 @@
+@page "/Customer/Profile"
+@model HRS_SmartBooking.Pages.Customer.ProfileModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<section class="customer-section profile-page">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Profile</p>
+            <h1>Personal info & booking DNA</h1>
+            <p>Modern layout with cards, booking history chips, and experience settings locked to dark.</p>
+        </div>
+    </div>
+
+    <div class="profile-grid">
+        <div class="glass-panel identity-card">
+            <div class="profile-header">
+                <div class="avatar avatar-lg">@string.Concat(Model.EditableUser.FirstName?.Take(1)).ToUpper()</div>
+                <div>
+                    <h2>@Model.EditableUser.FirstName @Model.EditableUser.LastName</h2>
+                    <p>Member since @Model.EditableUser.CreatedAt.ToString("yyyy")</p>
+                </div>
+            </div>
+            <ul class="profile-meta">
+                <li>
+                    <span>Email</span>
+                    <strong>@Model.EditableUser.Email</strong>
+                </li>
+                <li>
+                    <span>Phone</span>
+                    <strong>@(string.IsNullOrWhiteSpace(Model.EditableUser.PhoneNumber) ? "Not set" : Model.EditableUser.PhoneNumber)</strong>
+                </li>
+                <li>
+                    <span>Theme</span>
+                    <strong>Dark only</strong>
+                </li>
+                <li>
+                    <span>Language</span>
+                    <strong>English UI</strong>
+                </li>
+            </ul>
+            <div class="tag-grid">
+                <span class="badge badge-outline">Voyager tier</span>
+                <span class="badge badge-outline">Concierge 24/7</span>
+                <span class="badge badge-outline">Wallet sync</span>
+            </div>
+        </div>
+
+        <div class="glass-panel edit-card">
+            <h2>Update details</h2>
+            <form method="post" class="form-grid">
+                <input type="hidden" asp-for="EditableUser.UserId" />
+                <input type="hidden" asp-for="EditableUser.PreferredLanguage" value="@(Model.EditableUser.PreferredLanguage ?? "ENG")" />
+                <input type="hidden" asp-for="EditableUser.ThemePreference" value="dark" />
+
+                <div>
+                    <label>First name</label>
+                    <input type="text" asp-for="EditableUser.FirstName" required />
+                </div>
+                <div>
+                    <label>Last name</label>
+                    <input type="text" asp-for="EditableUser.LastName" required />
+                </div>
+                <div class="col-span-2">
+                    <label>Email</label>
+                    <input type="email" asp-for="EditableUser.Email" required />
+                </div>
+                <div class="col-span-2">
+                    <label>Phone number</label>
+                    <input type="tel" asp-for="EditableUser.PhoneNumber" />
+                </div>
+                <div class="col-span-2">
+                    <button type="submit" class="btn btn-gradient">
+                        <i class="bi bi-save2 me-2"></i>Save changes
+                    </button>
+                </div>
+            </form>
+            <p class="muted-note">Language toggle removed. Experience runs in dark mode only for consistency.</p>
+        </div>
+
+        <div class="glass-panel history-card">
+            <h2>Booking history</h2>
+            <div class="history-list">
+                <div>
+                    <strong>Skyline Suite</strong>
+                    <small>May 2025 • 3 nights</small>
+                </div>
+                <span class="status-pill success">Completed</span>
+            </div>
+            <div class="history-list">
+                <div>
+                    <strong>Desert Bloom Villa</strong>
+                    <small>Jul 2025 • 5 nights</small>
+                </div>
+                <span class="status-pill warning">Upcoming</span>
+            </div>
+            <a asp-page="/Customer/Booking" class="btn btn-outline-light btn-sm mt-3">Manage bookings</a>
+        </div>
+
+        <div class="glass-panel settings-card">
+            <h2>Experience settings</h2>
+            <p>Dark UI locked • English copy • Motion easing 240ms. Your concierge profile includes biometric login and push notifications.</p>
+            <ul class="marker-list">
+                <li>Biometric unlock on supported devices</li>
+                <li>Notification center with read states</li>
+                <li>Auto-sync across desktop + mobile</li>
+            </ul>
+        </div>
+    </div>
+</section>
+

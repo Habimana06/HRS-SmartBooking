@@ -1,0 +1,132 @@
+@page "/Manager/Dashboard"
+@model HRS_SmartBooking.Pages.Manager.DashboardModel
+@{
+    ViewData["Title"] = "Manager Dashboard";
+}
+
+<section class="reception-page manager-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Control center</p>
+            <h1>Manager overview</h1>
+            <p>Widgets, earnings charts, occupancy donuts, and live activity logs tuned for executive insight.</p>
+        </div>
+        <div class="header-actions">
+            <a asp-page="/Manager/AddRoom" class="btn btn-outline-light">
+                <i class="bi bi-plus-square me-2"></i>
+                Add room
+            </a>
+            <a asp-page="/Manager/AddAmenity" class="btn btn-gradient">
+                <i class="bi bi-lightning-charge me-2"></i>
+                Quick add amenity
+            </a>
+        </div>
+    </header>
+
+    <div class="metric-grid">
+        @foreach (var metric in Model.Metrics)
+        {
+            <article class="metric-card">
+                <div class="metric-icon">
+                    <i class="bi @metric.Icon"></i>
+                </div>
+                <div>
+                    <p class="metric-label">@metric.Title</p>
+                    <h3>@metric.Value</h3>
+                    <small>@metric.Detail</small>
+                </div>
+            </article>
+        }
+    </div>
+
+    <div class="chart-grid">
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Earnings</h2>
+                <span class="badge badge-outline">Monthly</span>
+            </div>
+            <div class="line-chart">
+                @foreach (var point in Model.Earnings)
+                {
+                    <div class="line-point" title="@point.Label">
+                        <span style="height:@($"{point.Value}px")"></span>
+                        <small>@point.Label</small>
+                    </div>
+                }
+            </div>
+        </article>
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Bookings</h2>
+                <span class="badge badge-outline">Daily</span>
+            </div>
+            <div class="sparkline">
+                @foreach (var point in Model.Bookings)
+                {
+                    <div class="spark-bar" style="height:@point.Value%">
+                        <span>@point.Label</span>
+                    </div>
+                }
+            </div>
+        </article>
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Occupancy split</h2>
+                <span class="badge badge-outline">Live</span>
+            </div>
+            <div class="donut-chart">
+                @foreach (var slice in Model.Occupancy)
+                {
+                    <div class="donut-slice">
+                        <strong>@slice.Value%</strong>
+                        <small>@slice.Label</small>
+                    </div>
+                }
+            </div>
+        </article>
+    </div>
+
+    <div class="split-grid mt-3">
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Activity logs</h2>
+                <span class="badge badge-outline">Latest updates</span>
+            </div>
+            <ul class="activity-list">
+                @foreach (var item in Model.ActivityLogs)
+                {
+                    <li>
+                        <div>
+                            <strong>@item.Title</strong>
+                            <p>@item.Detail</p>
+                        </div>
+                        <i class="bi bi-chevron-right"></i>
+                    </li>
+                }
+            </ul>
+        </article>
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Shortcuts</h2>
+            </div>
+            <div class="shortcut-grid">
+                <a asp-page="/Manager/ManageRooms" class="shortcut-card">
+                    <i class="bi bi-building"></i>
+                    <strong>Manage rooms</strong>
+                    <small>Update pricing, status, and stock</small>
+                </a>
+                <a asp-page="/Manager/StaffManagement" class="shortcut-card">
+                    <i class="bi bi-people"></i>
+                    <strong>Staff board</strong>
+                    <small>Roles, shifts, and permissions</small>
+                </a>
+                <a asp-page="/Manager/FinancialReports" class="shortcut-card">
+                    <i class="bi bi-graph-up"></i>
+                    <strong>Analytics</strong>
+                    <small>Revenue, occupancy, and exports</small>
+                </a>
+            </div>
+        </article>
+    </div>
+</section>
+

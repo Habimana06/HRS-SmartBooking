@@ -1,0 +1,65 @@
+@page "/Manager/ManageAmenities"
+@model HRS_SmartBooking.Pages.Manager.ManageAmenitiesModel
+@{
+    ViewData["Title"] = "Manage Amenities";
+}
+
+<section class="reception-page manager-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Amenities</p>
+            <h1>Manage amenities</h1>
+            <p>Icons, categories, assigned rooms, and status badges.</p>
+        </div>
+        <div class="header-actions">
+            <a class="btn btn-gradient" asp-page="/Manager/AddAmenity">
+                <i class="bi bi-plus-circle me-2"></i>
+                Add amenity
+            </a>
+        </div>
+    </header>
+
+    <div class="data-card table-card">
+        <div class="card-header">
+            <h2>Amenity catalogue</h2>
+            <span class="badge badge-outline">@Model.Amenities.Count entries</span>
+        </div>
+        <div class="responsive-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Icon</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Assigned rooms</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var amenity in Model.Amenities)
+                    {
+                        <tr>
+                            <td><i class="bi @amenity.Icon fs-5"></i></td>
+                            <td>@amenity.Name</td>
+                            <td><span class="badge badge-outline">@amenity.Category</span></td>
+                            <td>@amenity.Description</td>
+                            <td>@amenity.RoomCount</td>
+                            <td><span class="status">@amenity.Status</span></td>
+                            <td class="actions">
+                                <a asp-page="/Manager/AddAmenity" class="btn btn-icon btn-compact" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button class="btn btn-icon btn-compact" title="Disable">
+                                    <i class="bi bi-slash-circle"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+

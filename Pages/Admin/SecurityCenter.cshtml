@@ -1,0 +1,49 @@
+@page "/Admin/SecurityCenter"
+@model HRS_SmartBooking.Pages.Admin.SecurityCenterModel
+@{
+    ViewData["Title"] = "Security Center";
+}
+
+<section class="reception-page admin-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Security</p>
+            <h1>Security center</h1>
+            <p>Monitor failed logins, IP blocks, 2FA, sessions, password policy, and encryption.</p>
+        </div>
+        <button class="btn btn-gradient">Review incidents</button>
+    </header>
+
+    <div class="security-grid">
+        @foreach (var card in Model.SecurityStats)
+        {
+            <article class="security-card">
+                <i class="bi @card.Icon"></i>
+                <strong>@card.Detail</strong>
+                <small>@card.Title</small>
+            </article>
+        }
+    </div>
+
+    <div class="section-card">
+        <div class="card-header">
+            <h2>Session monitoring</h2>
+            <span class="badge badge-outline">Device history</span>
+        </div>
+        <div class="form-grid">
+            <div>
+                <label>IP address</label>
+                <input type="text" placeholder="Filter IP" />
+            </div>
+            <div>
+                <label>Device</label>
+                <input type="text" placeholder="Browser/OS" />
+            </div>
+        </div>
+        <div class="button-row mt-3">
+            <button class="btn btn-outline-light">Block IP</button>
+            <button class="btn btn-outline-light">Force logout</button>
+        </div>
+    </div>
+</section>
+

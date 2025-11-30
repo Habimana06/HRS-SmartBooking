@@ -1,0 +1,41 @@
+@page "/Manager/RoomTypes"
+@model HRS_SmartBooking.Pages.Manager.RoomTypesModel
+@{
+    ViewData["Title"] = "Room Types";
+}
+
+<section class="reception-page manager-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Room taxonomy</p>
+            <h1>Manage room types</h1>
+            <p>Cards summarizing pricing, occupancy, and default amenities.</p>
+        </div>
+        <button class="btn btn-outline-light">Add room type</button>
+    </header>
+
+    <div class="card-grid">
+        @foreach (var type in Model.Types)
+        {
+            <article class="room-type-card">
+                <div class="card-header">
+                    <h2>@type.Name</h2>
+                    <span class="badge badge-outline">@type.BasePrice</span>
+                </div>
+                <p>@type.Description</p>
+                <p class="muted">Max occupancy: @type.MaxOccupancy guests</p>
+                <div class="tag-grid">
+                    @foreach (var amenity in type.DefaultAmenities)
+                    {
+                        <span class="badge">@amenity</span>
+                    }
+                </div>
+                <div class="button-row mt-3">
+                    <button class="btn btn-outline-light btn-sm">Edit</button>
+                    <button class="btn btn-outline-light btn-sm">Duplicate</button>
+                </div>
+            </article>
+        }
+    </div>
+</section>
+

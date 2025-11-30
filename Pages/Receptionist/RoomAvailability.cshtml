@@ -1,0 +1,64 @@
+@page "/Receptionist/RoomAvailability"
+@model HRS_SmartBooking.Pages.Receptionist.RoomAvailabilityModel
+@{
+    ViewData["Title"] = "Room Availability";
+}
+
+<section class="reception-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Inventory</p>
+            <h1>Room availability grid</h1>
+            <p>Color-coded statuses with filters for floors, room types, and quick room detail modals.</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline-light">Floor map</button>
+            <button class="btn btn-gradient">Sync PMS</button>
+        </div>
+    </header>
+
+    <form class="filter-bar">
+        <div class="filter-field">
+            <label>Floor</label>
+            <select>
+                <option>All</option>
+                <option>10</option>
+                <option>12</option>
+                <option>15</option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label>Room type</label>
+            <select>
+                <option>All</option>
+                <option>Suite</option>
+                <option>Deluxe</option>
+                <option>Standard</option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label>Status</label>
+            <select>
+                <option>All</option>
+                <option>Available</option>
+                <option>Occupied</option>
+                <option>Cleaning</option>
+                <option>Maintenance</option>
+            </select>
+        </div>
+        <button type="button" class="btn btn-outline-light">Apply filters</button>
+    </form>
+
+    <div class="room-grid">
+        @foreach (var room in Model.Rooms)
+        {
+            <article class="room-status-card @room.Status.ToLower()">
+                <div class="room-number">@room.RoomNumber</div>
+                <p>@room.Type</p>
+                <span class="badge">@room.Status</span>
+                <button class="btn btn-outline-light btn-sm">View</button>
+            </article>
+        }
+    </div>
+</section>
+

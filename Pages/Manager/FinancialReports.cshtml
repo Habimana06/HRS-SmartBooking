@@ -1,0 +1,62 @@
+@page "/Manager/FinancialReports"
+@model HRS_SmartBooking.Pages.Manager.FinancialReportsModel
+@{
+    ViewData["Title"] = "Financial Reports";
+}
+
+<section class="reception-page manager-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Finance</p>
+            <h1>Financial reports</h1>
+            <p>Monthly revenue, payment methods, occupancy rates, and export-ready cards.</p>
+        </div>
+        <div class="header-actions">
+            <a asp-page-handler="ExportPdf" class="btn btn-outline-light">Export PDF</a>
+            <a asp-page-handler="ExportExcel" class="btn btn-outline-light">Export Excel</a>
+            <button class="btn btn-gradient" onclick="window.print()">Print</button>
+        </div>
+    </header>
+
+    <div class="chart-grid">
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Revenue per month</h2>
+                <span class="badge badge-outline">@Model.Currency (×1K)</span>
+            </div>
+            <div class="line-chart-container">
+                <div class="line-chart">
+                    @foreach (var point in Model.RevenueMonthly)
+                    {
+                        <div class="line-point" title="@point.Label">
+                            <span style="height:@($"{Math.Max(point.Value, 10)}px")"></span>
+                            <small>@point.Label</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </article>
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Payment methods</h2>
+            </div>
+            <div class="donut-chart">
+                @if (Model.PaymentMethods.Any())
+                {
+                    @foreach (var slice in Model.PaymentMethods)
+                    {
+                        <div class="donut-slice">
+                            <strong>@slice.Value%</strong>
+                            <small>@slice.Label</small>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted text-center py-4">No payment data available</p>
+                }
+            </div>
+        </article>
+    </div>
+</section>
+

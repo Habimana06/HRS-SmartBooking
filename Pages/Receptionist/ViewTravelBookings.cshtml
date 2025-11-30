@@ -1,0 +1,95 @@
+@page "/Receptionist/ViewTravelBookings"
+@model HRS_SmartBooking.Pages.Receptionist.ViewTravelBookingsModel
+@{
+    ViewData["Title"] = "Travel Bookings";
+}
+
+<section class="reception-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Travel & Attractions</p>
+            <h1>Travel Bookings</h1>
+            <p>View all travel bookings and attraction reservations.</p>
+        </div>
+    </header>
+
+    <form method="get" class="filter-bar">
+        <div class="filter-field">
+            <label>Status</label>
+            <select name="bookingStatus" asp-for="BookingStatus">
+                <option value="">All</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label>Payment Status</label>
+            <select name="paymentStatus" asp-for="PaymentStatus">
+                <option value="">All</option>
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+                <option value="failed">Failed</option>
+            </select>
+        </div>
+        <div class="filter-field full">
+            <label>Search</label>
+            <div class="input-icon">
+                <i class="bi bi-search"></i>
+                <input type="search" name="searchQuery" asp-for="SearchQuery" placeholder="Search by customer name, attraction, or booking ID" />
+            </div>
+        </div>
+        <button type="submit" class="btn btn-outline-light">Filter</button>
+        @if (!string.IsNullOrEmpty(Model.BookingStatus) || !string.IsNullOrEmpty(Model.PaymentStatus) || !string.IsNullOrEmpty(Model.SearchQuery))
+        {
+            <a asp-page="/Receptionist/ViewTravelBookings" class="btn btn-outline-light">Clear</a>
+        }
+    </form>
+
+    <div class="data-card table-card">
+        <div class="card-header">
+            <h2>Travel Bookings</h2>
+            <span class="badge badge-outline">@Model.TravelBookings.Count entries</span>
+        </div>
+        <div class="responsive-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Customer</th>
+                        <th>Attraction</th>
+                        <th>Type</th>
+                        <th>Travel Date</th>
+                        <th>Participants</th>
+                        <th>Total Price</th>
+                        <th>Payment Status</th>
+                        <th>Booking Status</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var booking in Model.TravelBookings)
+                    {
+                        <tr>
+                            <td><strong>TB-@booking.TravelBookingId</strong></td>
+                            <td>@booking.CustomerName</td>
+                            <td>@booking.AttractionName</td>
+                            <td>@booking.AttractionType</td>
+                            <td>@booking.TravelDate</td>
+                            <td>@booking.NumberOfParticipants</td>
+                            <td><strong>@booking.TotalPrice</strong></td>
+                            <td>
+                                <span class="status @booking.PaymentStatus.Replace(" ", "").ToLower()">@booking.PaymentStatus</span>
+                            </td>
+                            <td>
+                                <span class="status @booking.BookingStatus.Replace(" ", "").ToLower()">@booking.BookingStatus</span>
+                            </td>
+                            <td>@booking.CreatedAt</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+

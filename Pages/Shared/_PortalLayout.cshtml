@@ -1,0 +1,278 @@
+@using System.Collections.Generic
+@using System.Linq
+@using HRS_SmartBooking.Services
+@using HRS_SmartBooking.Helpers
+@inject AuthService AuthService
+@{
+    var userFirstName = Context.Session.GetString("FirstName") ?? "Guest";
+    var userLastName = Context.Session.GetString("LastName") ?? "User";
+    var userRole = AuthService.GetCurrentUserRole() ?? "Guest";
+    var fullName = $"{userFirstName} {userLastName}".Trim();
+    var initials = string.Concat(userFirstName.Take(1)).ToUpper() + string.Concat(userLastName.Take(1)).ToUpper();
+    var themePreference = Context.Session?.GetString("ThemePreference") ?? "light";
+    var languagePreference = Context.Session?.GetString("PreferredLanguage") ?? "ENG";
+    var htmlLang = languagePreference == "KIN" ? "rw" : "en";
+    var lang = TranslationHelper.GetCurrentLanguage(Context);
+    var currentPath = Context.Request.Path;
+
+    List<(string Title, string Page, string Icon)> navItems = userRole switch
+    {
+        "Admin" => new()
+        {
+            ("Dashboard", "/Admin/Dashboard", "bi-speedometer2"),
+            ("User Management", "/Admin/UserManagement", "bi-people"),
+            ("Roles & Permissions", "/Admin/RolesPermissions", "bi-shield-lock"),
+            ("Staff Management", "/Admin/StaffManagement", "bi-briefcase"),
+            ("Travel Bookings", "/Manager/ManageTravelBookings", "bi-airplane"),
+            ("System Configuration", "/Admin/SystemConfiguration", "bi-gear"),
+            ("Audit Logs", "/Admin/AuditLogs", "bi-clipboard-data"),
+            ("Payments & Transactions", "/Admin/Payments", "bi-credit-card"),
+            ("Reports", "/Admin/Reports", "bi-graph-up"),
+            ("Database Control", "/Admin/DatabaseControl", "bi-hdd-stack"),
+            ("Backup & Restore", "/Admin/BackupRestore", "bi-cloud-arrow-up"),
+            ("Security Center", "/Admin/SecurityCenter", "bi-shield-check"),
+            ("Profile", "/Admin/Profile", "bi-person-circle")
+        },
+        "Manager" => new()
+        {
+            ("Dashboard", "/Manager/Dashboard", "bi-speedometer2"),
+            ("Reservations", "/Manager/ManageBookings", "bi-calendar-check"),
+            ("Travel Bookings", "/Manager/ManageTravelBookings", "bi-airplane"),
+            ("Manage Rooms", "/Manager/ManageRooms", "bi-building"),
+            ("Add Room", "/Manager/AddRoom", "bi-plus-square"),
+            ("Manage Amenities", "/Manager/ManageAmenities", "bi-layers"),
+            ("Manage Room Types", "/Manager/RoomTypes", "bi-grid-3x3-gap"),
+            ("Staff Management", "/Manager/StaffManagement", "bi-people"),
+            ("Financial Reports", "/Manager/FinancialReports", "bi-graph-up"),
+            ("Customer Feedback", "/Manager/CustomerFeedback", "bi-chat-quote"),
+            ("Profile", "/Manager/Profile", "bi-person-circle")
+        },
+        "Receptionist" => new()
+        {
+            ("Dashboard", "/Receptionist/Dashboard", "bi-speedometer"),
+            ("Manage Reservations", "/Receptionist/ManageReservations", "bi-collection"),
+            ("Travel Bookings", "/Receptionist/ViewTravelBookings", "bi-airplane"),
+            ("Check-in Guests", "/Receptionist/CheckIn", "bi-box-arrow-in-right"),
+            ("Check-out Guests", "/Receptionist/CheckOut", "bi-box-arrow-left"),
+            ("Pending Approvals", "/Receptionist/PendingApprovals", "bi-hourglass-split"),
+            ("Room Availability", "/Receptionist/RoomAvailability", "bi-door-open"),
+            ("Customer Requests", "/Receptionist/CustomerRequests", "bi-life-preserver"),
+            ("Messages / Chats", "/Receptionist/Messages", "bi-chat-dots"),
+            ("Profile", "/Receptionist/Profile", "bi-person-circle")
+        },
+        "Customer" => new()
+        {
+            ("Experience", "/Customer/Home", "bi-stars"),
+            ("Rooms", "/Customer/Rooms", "bi-grid"),
+            ("Booking", "/Customer/Booking", "bi-calendar-check"),
+            ("My Bookings", "/Customer/MyBookings", "bi-calendar-event"),
+            ("Support", "/Customer/Support", "bi-life-preserver")
+        },
+        _ => new()
+        {
+            ("Home", "/Index", "bi-house"),
+            ("Login", "/Login", "bi-box-arrow-in-right"),
+            ("Register", "/Register", "bi-person-plus")
+        }
+    };
+
+    Func<string, string> isActive = path =>
+        currentPath.StartsWithSegments(path, StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty;
+}
+
+<!DOCTYPE html>
+<html lang="@htmlLang">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - HRS Smart Booking</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portal.css" asp-append-version="true" />
+</head>
+<body class="portal-shell theme-@themePreference">
+    <aside class="portal-sidebar" id="portalSidebar">
+        <div class="portal-brand">
+            <div class="brand-avatar">H</div>
+            <div>
+                <p class="brand-title mb-0">HRS Smart Booking</p>
+                <small class="text-muted text-uppercase">@userRole Portal</small>
+            </div>
+        </div>
+
+        <div class="portal-user">
+            <div class="user-chip">@initials</div>
+            <div>
+                <p class="user-name mb-0">@fullName</p>
+                <small class="text-muted">@userRole</small>
+            </div>
+        </div>
+
+        <nav class="portal-nav">
+            @foreach (var nav in navItems)
+            {
+                <a class="portal-link @isActive(nav.Page)" asp-page="@nav.Page">
+                    <i class="bi @nav.Icon"></i>
+                    <span>@nav.Title</span>
+                </a>
+            }
+        </nav>
+
+        <div class="portal-sidebar-footer">
+            @if (AuthService.IsAuthenticated())
+            {
+                <form method="post" asp-page="/Logout" class="w-100">
+                    <button type="submit" class="btn btn-outline-light w-100 d-inline-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
+                    </button>
+                </form>
+            }
+            else
+            {
+                <a class="btn btn-primary w-100" asp-page="/Login">Sign In</a>
+            }
+        </div>
+    </aside>
+
+    <div class="portal-main">
+        <header class="portal-topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-outline-secondary d-lg-none" id="portalSidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div>
+                    <p class="portal-top-title mb-0">@ViewData["Title"]</p>
+                    <small class="text-muted">Today • @DateTime.Now.ToString("D")</small>
+                </div>
+            </div>
+            <div class="portal-actions">
+                <div class="portal-search">
+                    <i class="bi bi-search"></i>
+                    <input type="search" class="form-control" placeholder="Search workspace" />
+                </div>
+                @if (userRole == "Manager")
+                {
+                    <a class="btn btn-outline-secondary btn-sm" asp-page="/Manager/AddRoom">
+                        <i class="bi bi-building-add me-1"></i>
+                        Add room
+                    </a>
+                    <a class="btn btn-outline-secondary btn-sm" asp-page="/Manager/AddAmenity">
+                        <i class="bi bi-puzzle me-1"></i>
+                        Add amenity
+                    </a>
+                }
+                else if (userRole == "Admin")
+                {
+                    <a class="btn btn-outline-secondary btn-sm" asp-page="/Admin/UserManagement" title="Add user">
+                        <i class="bi bi-person-plus me-1"></i>
+                        Add user
+                    </a>
+                    <a class="btn btn-outline-secondary btn-sm" asp-page="/Admin/BackupRestore">
+                        <i class="bi bi-cloud-arrow-up me-1"></i>
+                        Create backup
+                    </a>
+                }
+                else
+                {
+                    <button class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-lightning-charge me-1"></i>
+                        Quick action
+                    </button>
+                }
+                <form method="post" asp-page="/Preferences/Update" asp-page-handler="Theme" class="d-inline">
+                    <input type="hidden" name="mode" value="@(themePreference == "dark" ? "light" : "dark")" />
+                    <button class="btn btn-icon" type="submit" title="Toggle theme">
+                        <i class="bi @(themePreference == "dark" ? "bi-sun" : "bi-moon")"></i>
+                    </button>
+                </form>
+                <form method="post" asp-page="/Preferences/Update" asp-page-handler="Language" class="d-inline">
+                    <input type="hidden" name="locale" value="@(languagePreference == "KIN" ? "ENG" : "KIN")" />
+                    <button class="btn btn-icon" type="submit" title="Toggle language">
+                        <i class="bi bi-translate"></i>
+                    </button>
+                </form>
+                <button class="btn btn-icon">
+                    <i class="bi bi-bell"></i>
+                </button>
+                <div class="avatar avatar-sm">
+                    @string.Concat(userFirstName.Take(1)).ToUpper()
+                </div>
+            </div>
+        </header>
+
+        <main class="portal-content">
+            @if (TempData["FeedbackSuccess"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-bottom: 1rem;">
+                    <i class="bi bi-check-circle me-2"></i>@TempData["FeedbackSuccess"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["FeedbackError"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-bottom: 1rem;">
+                    <i class="bi bi-exclamation-circle me-2"></i>@TempData["FeedbackError"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @RenderBody()
+        </main>
+
+        @if (userRole == "Customer")
+        {
+            <footer class="portal-footer feedback-footer">
+                <div class="footer-feedback-section">
+                    <div class="footer-feedback-form">
+                        <h4>Feedback & Support</h4>
+                        <p class="text-muted small">Share your feedback or request support</p>
+                        <form method="post" asp-page="/Feedback/Submit" class="feedback-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="userRole" value="@userRole" />
+                            <div class="feedback-input-group">
+                                <input type="text" name="subject" placeholder="Subject" required />
+                                <textarea name="message" placeholder="Your feedback or support request..." rows="2" required></textarea>
+                            </div>
+                            <div class="feedback-actions">
+                                <button type="submit" class="btn btn-gradient btn-sm">
+                                    <i class="bi bi-send me-1"></i>
+                                    Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <span>&copy; @DateTime.Now.Year HRS Smart Booking</span>
+                    <a asp-page="/Privacy">Privacy</a>
+                </div>
+            </footer>
+        }
+        else if (userRole == "Receptionist" || userRole == "Manager")
+        {
+            <footer class="portal-footer">
+                <div class="footer-bottom">
+                    <span>&copy; @DateTime.Now.Year HRS Smart Booking</span>
+                    <a asp-page="/Privacy">Privacy</a>
+                </div>
+            </footer>
+        }
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            const sidebar = document.getElementById('portalSidebar');
+            const toggle = document.getElementById('portalSidebarToggle');
+            if (!sidebar || !toggle) return;
+            toggle.addEventListener('click', function () {
+                sidebar.classList.toggle('open');
+            });
+        })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
