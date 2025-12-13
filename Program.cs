@@ -49,9 +49,17 @@ builder.Services.AddSession(options =>
     options.Cookie.Name = ".AspNetCore.Session"; // Explicit cookie name
 });
 
-// SMTP Email Configuration
-builder.Services.Configure<HRS_SmartBooking.Services.SmtpSettings>(
-    builder.Configuration.GetSection("Smtp"));
+// SMTP Email Configuration (supports environment variables)
+builder.Services.Configure<HRS_SmartBooking.Services.SmtpSettings>(settings =>
+{
+    settings.Host = Environment.GetEnvironmentVariable("SMTP_HOST") ?? builder.Configuration["Smtp:Host"] ?? "";
+    settings.Port = int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT"), out var port) ? port : builder.Configuration.GetValue<int>("Smtp:Port", 587);
+    settings.User = Environment.GetEnvironmentVariable("SMTP_USER") ?? builder.Configuration["Smtp:User"] ?? "";
+    settings.Pass = Environment.GetEnvironmentVariable("SMTP_PASS") ?? builder.Configuration["Smtp:Pass"] ?? "";
+    settings.FromEmail = Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? builder.Configuration["Smtp:FromEmail"] ?? "";
+    settings.FromName = Environment.GetEnvironmentVariable("SMTP_FROM_NAME") ?? builder.Configuration["Smtp:FromName"] ?? "HRS Verification";
+    settings.UseSsl = bool.TryParse(Environment.GetEnvironmentVariable("SMTP_USE_SSL"), out var useSsl) ? useSsl : builder.Configuration.GetValue<bool>("Smtp:UseSsl", true);
+});
 builder.Services.AddScoped<HRS_SmartBooking.Services.SmtpEmailSender>();
 
 // App services reused from Razor project

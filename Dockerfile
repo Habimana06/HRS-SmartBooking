@@ -5,9 +5,26 @@ ENV ASPNETCORE_URLS=http://+:8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["HRSAPI.csproj", "./"]
+
+# Copy HRS-SmartBooking project file first (dependency)
+COPY ["HRS-SmartBooking/HRS-SmartBooking.csproj", "HRS-SmartBooking/"]
+
+# Copy HRSAPI project file
+COPY ["HRSAPI/HRSAPI.csproj", "HRSAPI/"]
+
+# Restore dependencies
+WORKDIR /src/HRSAPI
 RUN dotnet restore "HRSAPI.csproj"
-COPY . .
+
+# Copy HRS-SmartBooking source
+WORKDIR /src
+COPY ["HRS-SmartBooking/", "HRS-SmartBooking/"]
+
+# Copy HRSAPI source
+COPY ["HRSAPI/", "HRSAPI/"]
+
+# Build and publish
+WORKDIR /src/HRSAPI
 RUN dotnet build "HRSAPI.csproj" -c Release -o /app/build
 
 FROM build AS publish
@@ -17,14 +34,3 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "HRSAPI.dll"]
-```
-
-### **2. Create .dockerignore**
-
-Create `.dockerignore` file in your `HRSAPI` folder:
-```
-bin/
-obj/
-.vs/
-.vscode/
-*.user
