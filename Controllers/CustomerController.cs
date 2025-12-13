@@ -4,6 +4,8 @@ using HRS_SmartBooking.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
+using Npgsql;
+
 
 namespace HRSAPI.Controllers;
 
@@ -681,15 +683,18 @@ public class CustomerController : ControllerBase
             Console.WriteLine($"Database error creating booking: {dbEx.Message}");
             if (dbEx.InnerException != null)
             {
-                Console.WriteLine($"Inner exception: {dbEx.InnerException.Message}");
+                Console.WriteLine($"Inner exception message: {dbEx.InnerException.Message}");
                 Console.WriteLine($"Inner exception type: {dbEx.InnerException.GetType().Name}");
-                if (dbEx.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx)
+
+                if (dbEx.InnerException is Npgsql.PostgresException pgEx)
                 {
-                    Console.WriteLine($"SQL Error Number: {sqlEx.Number}");
-                    Console.WriteLine($"SQL Error State: {sqlEx.State}");
-                    Console.WriteLine($"SQL Error Message: {sqlEx.Message}");
+                    Console.WriteLine($"PostgreSQL SQL State: {pgEx.SqlState}");
+                    Console.WriteLine($"PostgreSQL Error Code: {pgEx.ErrorCode}");
+                    Console.WriteLine($"PostgreSQL Detail: {pgEx.Detail}");
+                    Console.WriteLine($"PostgreSQL Where: {pgEx.Where}");
                 }
             }
+
             var errorMessage = dbEx.InnerException?.Message ?? dbEx.Message;
             return StatusCode(500, new { 
                 message = "Failed to create booking", 

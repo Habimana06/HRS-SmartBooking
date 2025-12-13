@@ -16,9 +16,25 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// ✅ Railway PostgreSQL connection
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
+if (!string.IsNullOrEmpty(connectionString))
+{
+    // Railway uses postgres:// format, convert to Npgsql format
+    var databaseUri = new Uri(connectionString);
+    var userInfo = databaseUri.UserInfo.Split(':');
+    
+    connectionString = $"Host={databaseUri.Host};Port={databaseUri.Port};Database={databaseUri.AbsolutePath.Trim('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
+else
+{
+    // Fallback to appsettings.json for local development
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+}
+
 // Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 // Session (same behaviour as Razor app)
 builder.Services.AddDistributedMemoryCache();
@@ -48,18 +64,12 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<HRS_SmartBooking.Services.EmailVerificationService>();
 builder.Services.AddHttpContextAccessor();
 
-// CORS for React dev client
+// ✅ Updated CORS for Railway + React
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("ReactClient", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:5173",
-                "http://localhost:3000",
-                "http://localhost:5174",
-                "http://127.0.0.1:5173",
-                "http://127.0.0.1:3000"
-              )
+        policy.SetIsOriginAllowed(origin => true) // Allow any origin temporarily
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -68,26 +78,56 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// ✅ Auto-run migrations on startup (for Railway deployment)
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        
+        logger.LogInformation("Running database migrations...");
+        db.Database.Migrate();
+        logger.LogInformation("Database migrations completed successfully.");
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+        throw; // Re-throw to prevent startup if migrations fail
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    // ✅ Enable Swagger in production for Railway testing
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-app.UseHttpsRedirection();
+// ✅ Don't force HTTPS redirect on Railway (Railway handles SSL)
+// app.UseHttpsRedirection();
 
 // Serve uploaded files from wwwroot (needed for room/travel images)
 app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseCors("ReactClient");
+app.UseCors("AllowAll");
 
 app.UseSession();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+// ✅ Health check endpoint
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 app.Run();
