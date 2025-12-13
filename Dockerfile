@@ -6,7 +6,7 @@ ENV ASPNETCORE_URLS=http://+:${PORT:-8080}
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy the main project file
+# Copy project file
 COPY ["HRSAPI.csproj", "./"]
 
 # Restore dependencies
