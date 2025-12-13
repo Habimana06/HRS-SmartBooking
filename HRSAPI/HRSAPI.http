@@ -1,6 +1,0 @@
-@HRSAPI_HostAddress = http://localhost:5241
-
-GET {{HRSAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
