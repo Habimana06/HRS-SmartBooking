@@ -1,0 +1,70 @@
+@page "/Manager/CustomerFeedback"
+@model HRS_SmartBooking.Pages.Manager.CustomerFeedbackModel
+@{
+    ViewData["Title"] = "Customer Feedback";
+}
+
+<section class="reception-page manager-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Voice of guest</p>
+            <h1>Customer feedback</h1>
+            <p>Ratings, comments, and reply buttons with status chips.</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline-light">Export</button>
+        </div>
+    </header>
+
+    @if (Model.Feedback.Any())
+    {
+        <div class="feedback-list">
+            @foreach (var item in Model.Feedback)
+            {
+                <article class="feedback-card">
+                    <header>
+                        <div>
+                            <strong>@item.Name</strong>
+                            <p>@item.Room • @item.Date</p>
+                        </div>
+                        <span class="status">@item.Status</span>
+                    </header>
+                    @if (item.Rating > 0)
+                    {
+                        <div class="rating">
+                            @for (var i = 0; i < item.Rating; i++)
+                            {
+                                <i class="bi bi-star-fill"></i>
+                            }
+                            @for (var i = item.Rating; i < 5; i++)
+                            {
+                                <i class="bi bi-star"></i>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-muted small mb-2">
+                            <i class="bi bi-chat-text me-1"></i>Feedback/Support Request
+                        </div>
+                    }
+                    <p>@item.Comment</p>
+                    <div class="button-row">
+                        <button class="btn btn-outline-light btn-sm">Reply</button>
+                        <button class="btn btn-outline-light btn-sm">Mark resolved</button>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="data-card">
+            <div class="text-center py-5">
+                <i class="bi bi-chat-quote fs-1 text-muted"></i>
+                <p class="text-muted mt-3">No customer feedback available yet.</p>
+            </div>
+        </div>
+    }
+</section>
+

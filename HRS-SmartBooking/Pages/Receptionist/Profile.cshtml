@@ -1,0 +1,90 @@
+@page "/Receptionist/Profile"
+@model HRS_SmartBooking.Pages.Receptionist.ProfileModel
+@{
+    ViewData["Title"] = "Profile Settings";
+}
+
+<section class="reception-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Profile</p>
+            <h1>Receptionist settings</h1>
+            <p>Manage credentials, notifications, profile photo, and theme (dark locked).</p>
+        </div>
+        <button class="btn btn-outline-light">View audit log</button>
+    </header>
+
+    <div class="dual-grid">
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Profile info</h2>
+            </div>
+            <div class="profile-block">
+                <div class="avatar avatar-lg">@Model.FullName[0]</div>
+                <div>
+                    <h2>@Model.FullName</h2>
+                    <p>@Model.Email</p>
+                </div>
+            </div>
+            <form class="form-grid">
+                <div class="col-span-2">
+                    <label>Full name</label>
+                    <input type="text" value="@Model.FullName" />
+                </div>
+                <div class="col-span-2">
+                    <label>Email</label>
+                    <input type="email" value="@Model.Email" />
+                </div>
+                <div class="col-span-2">
+                    <label>Phone</label>
+                    <input type="tel" value="@Model.Phone" />
+                </div>
+                <div class="action-row">
+                    <button type="button" class="btn btn-outline-light">Cancel</button>
+                    <button type="button" class="btn btn-gradient">Save changes</button>
+                </div>
+            </form>
+        </article>
+
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Security & notifications</h2>
+            </div>
+            <div class="setting-row">
+                <div>
+                    <strong>Change password</strong>
+                    <p>Update every 60 days for compliance.</p>
+                </div>
+                <button class="btn btn-outline-light btn-sm">Update</button>
+            </div>
+            <div class="setting-row">
+                <div>
+                    <strong>Push notifications</strong>
+                    <p>Receive alerts for VIP arrivals and escalations.</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" @(Model.PushEnabled ? "checked" : string.Empty) />
+                    <span></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <div>
+                    <strong>Alert center</strong>
+                    <p>Send urgent approvals to desktop + mobile.</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" @(Model.AlertsEnabled ? "checked" : string.Empty) />
+                    <span></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <div>
+                    <strong>Theme</strong>
+                    <p>Dark mode is enforced for front desk.</p>
+                </div>
+                <span class="badge badge-outline">Dark</span>
+            </div>
+        </article>
+    </div>
+</section>
+

@@ -1,0 +1,141 @@
+@page "/Receptionist/CheckOut"
+@model HRS_SmartBooking.Pages.Receptionist.CheckOutModel
+@{
+    ViewData["Title"] = "Check-out Guests";
+}
+
+<section class="reception-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Check-out flow</p>
+            <h1>Finalize departures</h1>
+            <p>Select a guest, review stay summary, and complete checkout to free up the room.</p>
+        </div>
+    </header>
+
+    <div class="triple-grid">
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Guests ready to check-out</h2>
+                <span class="badge badge-outline">@Model.PendingCheckOuts.Count ready</span>
+            </div>
+            @if (Model.PendingCheckOuts.Any())
+            {
+                <table class="table table-sm align-middle mb-3">
+                    <thead>
+                        <tr>
+                            <th>Guest</th>
+                            <th>Room</th>
+                            <th>Check-in</th>
+                            <th>Check-out</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var booking in Model.PendingCheckOuts)
+                    {
+                        <tr>
+                            <td>@($"{booking.Customer?.FirstName} {booking.Customer?.LastName}")</td>
+                            <td>@booking.Room?.RoomNumber</td>
+                            <td>@booking.CheckInDate.ToString("yyyy-MM-dd")</td>
+                            <td>@booking.CheckOutDate.ToString("yyyy-MM-dd")</td>
+                            <td class="text-end">
+                                <a asp-page="/Receptionist/CheckOut"
+                                   asp-route-bookingId="@booking.BookingId"
+                                   class="btn btn-outline-light btn-sm">
+                                    Load
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-muted mb-0">No guests are currently pending check-out.</p>
+            }
+        </article>
+
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Charges</h2>
+                <span class="badge badge-outline">Summary</span>
+            </div>
+            @if (Model.SelectedBooking != null)
+            {
+                <dl class="detail-list">
+                    <div>
+                        <dt>Guest</dt>
+                        <dd>@($"{Model.SelectedBooking.Customer?.FirstName} {Model.SelectedBooking.Customer?.LastName}")</dd>
+                    </div>
+                    <div>
+                        <dt>Room</dt>
+                        <dd>@Model.SelectedBooking.Room?.RoomNumber (@Model.SelectedBooking.Room?.RoomType?.TypeName)</dd>
+                    </div>
+                    <div>
+                        <dt>Stay</dt>
+                        <dd>@Model.SelectedBooking.CheckInDate.ToString("yyyy-MM-dd") - @Model.SelectedBooking.CheckOutDate.ToString("yyyy-MM-dd")</dd>
+                    </div>
+                </dl>
+                <ul class="charge-list">
+                    <li>
+                        <span>Room total</span>
+                        <strong>@Model.RoomTotal</strong>
+                    </li>
+                    <li>
+                        <span>Mini-bar</span>
+                        <strong>@Model.MiniBarCharges</strong>
+                    </li>
+                    <li>
+                        <span>Late checkout</span>
+                        <strong>@Model.LateCheckoutFee</strong>
+                    </li>
+                </ul>
+                <div class="total-row">
+                    <span>Grand total</span>
+                    <strong>@Model.GrandTotal</strong>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">Select a booking on the left to view charges.</p>
+            }
+        </article>
+
+        <article class="data-card">
+            <div class="card-header">
+                <h2>Actions</h2>
+            </div>
+            @if (Model.SelectedBooking != null)
+            {
+                <form method="post" asp-page-handler="Complete" class="form-grid">
+                    <input type="hidden" name="bookingId" value="@Model.SelectedBooking.BookingId" />
+                    <div class="col-span-2">
+                        <label>Invoice preference</label>
+                        <select>
+                            <option>Email + Print</option>
+                            <option>Email only</option>
+                            <option>Print only</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2 toggle-row">
+                        <label class="switch">
+                            <input type="checkbox" checked />
+                            <span></span>
+                        </label>
+                        <p>Notify housekeeping automatically</p>
+                    </div>
+                    <div class="col-span-2 action-row">
+                        <button type="submit" class="btn btn-gradient">Complete checkout</button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <p class="text-muted mb-0">Select a booking to enable checkout actions.</p>
+            }
+        </article>
+    </div>
+</section>
+

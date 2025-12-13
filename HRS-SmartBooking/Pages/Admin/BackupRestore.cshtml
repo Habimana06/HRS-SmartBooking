@@ -1,0 +1,85 @@
+@page "/Admin/BackupRestore"
+@model HRS_SmartBooking.Pages.Admin.BackupRestoreModel
+@{
+    ViewData["Title"] = "Backup & Restore";
+}
+
+<section class="reception-page admin-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Backups</p>
+            <h1>Backup & restore</h1>
+            <p>Create backups, schedule automation, view history, and download.</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline-light">Schedule</button>
+            <button class="btn btn-gradient">Create backup</button>
+        </div>
+    </header>
+
+    <div class="section-card">
+        <div class="card-header">
+            <h2>Automatic backups</h2>
+        </div>
+        <div class="toggle-row">
+            <label class="switch">
+                <input type="checkbox" checked />
+                <span></span>
+            </label>
+            <p>Run daily at 03:00 (UTC)</p>
+        </div>
+        <div class="form-grid">
+            <div>
+                <label>Destination</label>
+                <select>
+                    <option>Cloud + Local</option>
+                    <option>Cloud only</option>
+                    <option>Local only</option>
+                </select>
+            </div>
+            <div>
+                <label>Retention (days)</label>
+                <input type="number" value="30" />
+            </div>
+        </div>
+    </div>
+
+    <div class="data-card table-card">
+        <div class="card-header">
+            <h2>Backup history</h2>
+        </div>
+        <div class="responsive-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Time</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.History)
+                    {
+                        <tr>
+                            <td>@item.Type</td>
+                            <td>@item.Time</td>
+                            <td>@item.Location</td>
+                            <td><span class="status">@item.Status</span></td>
+                            <td class="actions">
+                                <button class="btn btn-icon btn-compact" title="Download">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                                <button class="btn btn-icon btn-compact" title="Restore">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+

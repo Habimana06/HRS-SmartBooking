@@ -1,0 +1,293 @@
+@page "/Manager/AddRoom"
+@model HRS_SmartBooking.Pages.Manager.AddRoomModel
+@{
+    ViewData["Title"] = "Add Room";
+}
+
+<section class="reception-page manager-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Room builder</p>
+            <h1>@(Model.IsEditMode ? "Edit room" : "Add room")</h1>
+            <p>Drag-drop gallery, amenity selector, and dual save actions.</p>
+        </div>
+        <div class="header-actions">
+            <a asp-page="/Manager/ManageRooms" class="btn btn-outline-light">Back to rooms</a>
+        </div>
+    </header>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    <form method="post" class="room-builder">
+        <div class="section-card">
+            <div class="card-header">
+                <h2>Room basics</h2>
+                <span class="badge badge-outline">Required</span>
+            </div>
+            <div class="form-grid">
+                <div>
+                    <label>Room number</label>
+                    <input type="text" asp-for="Input.RoomNumber" placeholder="1608" required />
+                    <span asp-validation-for="Input.RoomNumber" class="text-danger"></span>
+                </div>
+                <div>
+                    <label>Floor number</label>
+                    <input type="number" asp-for="Input.FloorNumber" placeholder="16" />
+                </div>
+                <div>
+                    <label>Room type</label>
+                    <select asp-for="Input.RoomTypeId" required>
+                        <option value="">Select room type</option>
+                        @foreach (var type in Model.RoomTypeList)
+                        {
+                            <option value="@type.RoomTypeId">@type.TypeName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Input.RoomTypeId" class="text-danger"></span>
+                </div>
+                <div>
+                    <label>Price per night</label>
+                    <input type="number" asp-for="Input.CurrentPrice" step="0.01" placeholder="620" required />
+                    <span asp-validation-for="Input.CurrentPrice" class="text-danger"></span>
+                </div>
+                <div>
+                    <label>Max occupancy</label>
+                    <input type="number" asp-for="Input.MaxOccupancy" placeholder="4" min="1" />
+                </div>
+                <div>
+                    <label>Status</label>
+                    <select asp-for="Input.Status" required>
+                        @foreach (var status in Model.Statuses)
+                        {
+                            <option value="@status">@status</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Input.Status" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="card-header">
+                <h2>Room description</h2>
+            </div>
+            <div class="form-grid">
+                <div class="col-span-2">
+                    <label>Description</label>
+                    <textarea rows="4" asp-for="Input.Description" placeholder="Enter description of the room, highlights, services, and signature elements."></textarea>
+                </div>
+                <div class="col-span-2">
+                    <label>Image URLs (comma-separated)</label>
+                    <textarea rows="2" asp-for="Input.ImageUrls" id="imageUrlsTextarea" placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"></textarea>
+                    <small class="text-muted">Enter image URLs separated by commas (or upload images below)</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="card-header">
+                <h2>Image gallery</h2>
+                <span class="badge badge-outline">Drag & drop</span>
+            </div>
+            <div class="upload-dropzone" id="uploadDropzone">
+                <i class="bi bi-cloud-arrow-up"></i>
+                <p>Drop files here or click to upload</p>
+                <small>JPEG/PNG, up to 10 images</small>
+                <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;" />
+            </div>
+            <div class="image-previews" id="imagePreviews">
+                @if (!string.IsNullOrEmpty(Model.Input.ImageUrls))
+                {
+                    var existingImages = Model.Input.ImageUrls.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                    @foreach (var imgUrl in existingImages)
+                    {
+                        <div class="image-thumb" data-url="@imgUrl.Trim()">
+                            <img src="@imgUrl.Trim()" alt="Room image" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" />
+                            <button type="button" class="remove-image" onclick="removeImage(this)" title="Remove image">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    }
+                }
+                <div class="image-thumb add-more" id="addMoreBtn">
+                    <i class="bi bi-plus"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="card-header">
+                <h2>Amenities</h2>
+                <div class="button-row">
+                    <button type="button" class="btn btn-outline-light btn-sm">Add new amenity</button>
+                    <a asp-page="/Manager/AddAmenity" class="btn btn-outline-light btn-sm">Open amenity builder</a>
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="col-span-2">
+                    <label>Amenities (comma-separated)</label>
+                    <textarea rows="3" asp-for="Input.Amenities" placeholder="High-speed Wi-Fi, Smart TV, Rain shower, Mini bar"></textarea>
+                    <small class="text-muted">Enter amenities separated by commas. These will be associated with the room type.</small>
+                </div>
+                <div class="col-span-2">
+                    <label>Category tags</label>
+                    <div class="tag-grid">
+                        @foreach (var category in Model.AmenityCategories)
+                        {
+                            <span class="badge badge-outline">@category</span>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="amenity-grid">
+                @foreach (var category in Model.AmenityCategories)
+                {
+                    <article class="amenity-card">
+                        <strong>@category</strong>
+                        <small>4 amenities selected</small>
+                        <p>Hover to edit icon and badge color.</p>
+                    </article>
+                }
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn btn-outline-light">Save & view</button>
+            <button type="button" class="btn btn-outline-light">Save & add another</button>
+            <button type="submit" class="btn btn-gradient">Save room</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+        (function() {
+            const dropzone = document.getElementById('uploadDropzone');
+            const fileInput = document.getElementById('imageUpload');
+            const previews = document.getElementById('imagePreviews');
+            const addMoreBtn = document.getElementById('addMoreBtn');
+            const imageUrlsInput = document.getElementById('imageUrlsTextarea');
+            let uploadedImages = [];
+
+            // Load existing images from textarea
+            function loadExistingImages() {
+                if (imageUrlsInput && imageUrlsInput.value) {
+                    uploadedImages = imageUrlsInput.value.split(',').map(url => url.trim()).filter(url => url);
+                    updateImageUrls();
+                }
+            }
+
+            // Update the ImageUrls textarea with current images
+            function updateImageUrls() {
+                if (imageUrlsInput) {
+                    imageUrlsInput.value = uploadedImages.join(', ');
+                }
+            }
+
+            // Add image preview
+            function addImagePreview(url) {
+                if (uploadedImages.includes(url)) return;
+                
+                uploadedImages.push(url);
+                const thumb = document.createElement('div');
+                thumb.className = 'image-thumb';
+                thumb.dataset.url = url;
+                thumb.innerHTML = `
+                    <img src="${url}" alt="Room image" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" />
+                    <button type="button" class="remove-image" onclick="removeImage(this)" title="Remove image">
+                        <i class="bi bi-x"></i>
+                    </button>
+                `;
+                previews.insertBefore(thumb, addMoreBtn);
+                updateImageUrls();
+                
+                // Limit to 10 images
+                if (uploadedImages.length >= 10) {
+                    addMoreBtn.style.display = 'none';
+                }
+            }
+
+            // Remove image
+            window.removeImage = function(btn) {
+                const thumb = btn.closest('.image-thumb');
+                const url = thumb.dataset.url;
+                uploadedImages = uploadedImages.filter(img => img !== url);
+                thumb.remove();
+                updateImageUrls();
+                addMoreBtn.style.display = 'flex';
+            };
+
+            // Handle file selection
+            fileInput.addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+
+            // Handle drag and drop
+            dropzone.addEventListener('click', () => fileInput.click());
+            
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.style.background = 'rgba(59, 130, 246, 0.1)';
+            });
+
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.style.background = '';
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.style.background = '';
+                handleFiles(e.dataTransfer.files);
+            });
+
+            // Handle uploaded files
+            async function handleFiles(files) {
+                if (files.length === 0) return;
+                
+                const filesToUpload = Array.from(files).slice(0, 10 - uploadedImages.length);
+                
+                for (const file of filesToUpload) {
+                    if (!file.type.startsWith('image/')) {
+                        alert('Please upload only image files');
+                        continue;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    try {
+                        const response = await fetch('?handler=UploadImage', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                            }
+                        });
+
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            addImagePreview(result.url);
+                        } else {
+                            alert('Error uploading image: ' + result.message);
+                        }
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        alert('Error uploading image. Please try again.');
+                    }
+                }
+            }
+
+            // Initialize
+            loadExistingImages();
+        })();
+    </script>
+}
+

@@ -1,0 +1,66 @@
+@page "/Manager/AddAmenity"
+@model HRS_SmartBooking.Pages.Manager.AddAmenityModel
+@{
+    ViewData["Title"] = "Add Amenity";
+}
+
+<section class="reception-page manager-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Amenity builder</p>
+            <h1>Add amenity</h1>
+            <p>Icon picker, categories, description, and status toggle.</p>
+        </div>
+        <a asp-page="/Manager/ManageAmenities" class="btn btn-outline-light">Back to list</a>
+    </header>
+
+    <form class="section-card">
+        <div class="form-grid">
+            <div>
+                <label>Amenity name</label>
+                <input type="text" placeholder="Heated infinity pool" />
+            </div>
+            <div>
+                <label>Category</label>
+                <select>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option>@category</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label>Status</label>
+                <select>
+                    <option>Active</option>
+                    <option>Inactive</option>
+                </select>
+            </div>
+            <div>
+                <label>Icon</label>
+                <select>
+                    @foreach (var icon in Model.Icons)
+                    {
+                        <option>@icon</option>
+                    }
+                </select>
+            </div>
+            <div class="col-span-2">
+                <label>Description</label>
+                <textarea rows="3" placeholder="Describe experience, restrictions, or requirements."></textarea>
+            </div>
+            <div class="col-span-2 toggle-row">
+                <label class="switch">
+                    <input type="checkbox" checked />
+                    <span></span>
+                </label>
+                <p>Attach amenity to matching rooms automatically</p>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="btn btn-outline-light">Save & new</button>
+            <button type="submit" class="btn btn-gradient">Save amenity</button>
+        </div>
+    </form>
+</section>
+

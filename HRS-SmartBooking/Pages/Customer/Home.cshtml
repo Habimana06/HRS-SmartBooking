@@ -1,0 +1,583 @@
+@page "/Customer/Home"
+@model HRS_SmartBooking.Pages.Customer.HomeModel
+@{
+    ViewData["Title"] = "Customer Experience";
+}
+
+<section class="hero-grid">
+    <div class="hero-visual" id="heroCarousel">
+        <div class="hero-slide active" style="background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80');">
+            <div class="hero-video-glow"></div>
+        </div>
+        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1920&q=80');">
+            <div class="hero-video-glow"></div>
+        </div>
+        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1920&q=80');">
+            <div class="hero-video-glow"></div>
+        </div>
+        <div class="hero-overlay">
+            <p class="hero-chip">Premium stays • Real-time availability</p>
+            <h1>Craft your next stay with cinematic precision.</h1>
+            <p>Immersive hotel discovery, live pricing intel, and a concierge-grade journey across every device.</p>
+            <div class="hero-cta">
+                <a class="btn btn-gradient" asp-page="/Customer/Booking">Book now</a>
+                <a class="btn btn-outline-light" asp-page="/Customer/Explore">Explore Rwanda</a>
+            </div>
+        </div>
+        <div class="hero-dots">
+            <span class="active" data-slide="0"></span>
+            <span data-slide="1"></span>
+            <span data-slide="2"></span>
+        </div>
+    </div>
+    <div class="hero-search-card">
+        <p class="text-uppercase text-muted mb-2">Plan in 12 seconds</p>
+        <form method="post" asp-page-handler="Search" class="floating-search glass-panel" id="homeSearchForm">
+            <div class="search-grid">
+                <div>
+                    <label>Check-in</label>
+                    <input type="date" name="checkIn" id="checkIn" value='@DateTime.Today.ToString("yyyy-MM-dd")' min="2001-01-01" max="@DateTime.Now.AddYears(10).ToString("yyyy-MM-dd")" required />
+                </div>
+                <div>
+                    <label>Check-out</label>
+                    <input type="date" name="checkOut" id="checkOut" value='@DateTime.Today.AddDays(3).ToString("yyyy-MM-dd")' min="2001-01-01" max="@DateTime.Now.AddYears(10).ToString("yyyy-MM-dd")" required />
+                </div>
+                <div>
+                    <label>Guests</label>
+                    <select name="guests" id="guests" required>
+                        <option value="1">1 Adult</option>
+                        <option value="2" selected>2 Adults</option>
+                        <option value="3">3 Adults</option>
+                        <option value="4">4 Adults</option>
+                        <option value="5">5 Adults</option>
+                        <option value="6">6+ Adults</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Room type</label>
+                    <select name="roomType" id="roomType">
+                        <option value="">All Types</option>
+                        @foreach (var roomType in Model.RoomTypes)
+                        {
+                            <option value="@roomType">@roomType</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-gradient w-100 mt-3">
+                <i class="bi bi-magic me-2"></i>
+                Search curated rooms
+            </button>
+        </form>
+        <div class="micro-metrics">
+            <div>
+                <strong>120+</strong>
+                <span>Handpicked hotels</span>
+            </div>
+            <div>
+                <strong>4.9/5</strong>
+                <span>Traveler score</span>
+            </div>
+            <div>
+                <strong>24/7</strong>
+                <span>Concierge</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="customer-section">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Featured rooms</p>
+            <h2>Live availability carousel</h2>
+        </div>
+        <div class="carousel-controls">
+            <button type="button" class="btn btn-icon" data-carousel-button data-target="#roomsCarousel" data-direction="prev">
+                <i class="bi bi-arrow-left"></i>
+            </button>
+            <button type="button" class="btn btn-icon" data-carousel-button data-target="#roomsCarousel" data-direction="next">
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+    <div class="room-carousel" id="roomsCarousel" data-card-width="360">
+        @foreach (var room in Model.FeaturedRooms)
+        {
+            <article class="room-card glow-card">
+                <div class="room-media" style="background-image:url('@room.ImageUrl');">
+                    <span class="badge badge-glow">@room.Tag</span>
+                </div>
+                <div class="room-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h3>@room.Name</h3>
+                            <p>@room.Description</p>
+                        </div>
+                        <strong>@room.Price<span class="text-muted fs-6"> / night</span></strong>
+                    </div>
+                    <div class="room-meta">
+                        <span><i class="bi bi-person"></i> @room.Capacity</span>
+                        <span><i class="bi bi-moon-stars"></i> Turn-down</span>
+                        <span><i class="bi bi-lightning-charge"></i> Fast Wi-Fi</span>
+                    </div>
+                    <div class="room-actions">
+                        <a asp-page="/Customer/RoomDetails" asp-route-id="@room.RoomId" class="btn btn-outline-light">View details</a>
+                        <a asp-page="/Customer/Booking" asp-route-roomId="@room.RoomId" class="btn btn-gradient">Reserve</a>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+    <div class="carousel-dots">
+        <span class="active"></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="text-center mt-4">
+        <a asp-page="/Customer/Rooms" class="btn btn-gradient btn-lg pill-btn">View all rooms</a>
+    </div>
+</section>
+
+<section class="customer-section">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Amenities</p>
+            <h2>Signature essentials in every property</h2>
+        </div>
+    </div>
+    <div class="amenities-grid">
+        @foreach (var amenity in Model.AmenityHighlights)
+        {
+            <div class="amenity-card">
+                <div class="icon-orb">
+                    <i class="bi bi-stars"></i>
+                </div>
+                <strong>@amenity</strong>
+                <small>Hover to see the glow pulse</small>
+            </div>
+        }
+    </div>
+</section>
+
+<section class="split-panel customer-section">
+    <div class="split-media gradient-border">
+        <div class="media-overlay">
+            <p>Boutique storytelling</p>
+            <span>+ City deep dives</span>
+        </div>
+    </div>
+    <div class="split-copy">
+        <p class="eyebrow">About the hotel</p>
+        <h2>Designed for modern nomads</h2>
+        <p>We blend architectural storytelling, adaptive lighting, and concierge-grade tech that keeps your journey seamless across web, mobile, and lobby displays.</p>
+        <ul class="marker-list">
+            <li>Frosted navigation with scroll awareness</li>
+            <li>Motion language anchored to 240ms easing</li>
+            <li>8px spacing grid with negative space rules</li>
+        </ul>
+        <a asp-page="/Customer/Rooms" class="btn btn-outline-light">Learn more</a>
+    </div>
+</section>
+
+<section class="customer-section">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Destinations</p>
+            <h2>Popular escapes with cinematic overlays</h2>
+        </div>
+    </div>
+    <div class="destination-grid">
+        @foreach (var destination in Model.Destinations)
+        {
+            <article class="destination-card">
+                <div class="destination-overlay">
+                    <h3>@destination.Location</h3>
+                    <p>@destination.Detail</p>
+                </div>
+            </article>
+        }
+    </div>
+</section>
+
+<section class="customer-section">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Customer reviews</p>
+            <h2>Animated testimonials with depth</h2>
+        </div>
+    </div>
+    <div class="reviews-slider">
+        @foreach (var review in Model.Reviews)
+        {
+            <article class="review-card">
+                <div class="review-profile">
+                    <div class="avatar">@review.Name[0]</div>
+                    <div>
+                        <strong>@review.Name</strong>
+                        <small>@review.Title</small>
+                    </div>
+                </div>
+                <div class="review-stars">
+                    @for (var i = 0; i < review.Rating; i++)
+                    {
+                        <i class="bi bi-star-fill"></i>
+                    }
+                </div>
+                <p>@review.Quote</p>
+            </article>
+        }
+    </div>
+</section>
+
+<section class="customer-section">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Why choose us</p>
+            <h2>Micro cards with motion shadows</h2>
+        </div>
+    </div>
+    <div class="why-grid">
+        @foreach (var card in Model.WhyUs)
+        {
+            <article class="why-card">
+                <h3>@card.Title</h3>
+                <p>@card.Description</p>
+                <span class="badge badge-outline">Premium</span>
+            </article>
+        }
+    </div>
+</section>
+
+<!-- New Feature 1: Visit Rwanda Style Section -->
+<section class="customer-section rwanda-feature-section">
+    <div class="rwanda-hero" style="background-image: url('/images/forest1.jpg');">
+        <div class="rwanda-overlay"></div>
+        <div class="rwanda-content">
+            <div class="rwanda-header">
+                <h2>Visit Rwanda</h2>
+                <p class="rwanda-subtitle">Experience the perfect blend of natural beauty, cultural heritage, and adventure in Rwanda</p>
+            </div>
+            
+            <div class="rwanda-features-grid">
+                <article class="rwanda-feature-card" style="background-image: url('/images/forest2.jpg');">
+                    <div class="rwanda-card-overlay"></div>
+                    <div class="rwanda-card-content">
+                        <div class="rwanda-card-icon">
+                            <i class="bi bi-tree"></i>
+                        </div>
+                        <h3>Natural Beauty</h3>
+                        <p>Discover Rwanda's stunning landscapes and national parks</p>
+                    </div>
+                </article>
+
+                <article class="rwanda-feature-card" style="background-image: url('/images/forest3.jpg');">
+                    <div class="rwanda-card-overlay"></div>
+                    <div class="rwanda-card-content">
+                        <div class="rwanda-card-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h3>Cultural Heritage</h3>
+                        <p>Experience the rich culture and traditions of Rwanda</p>
+                    </div>
+                </article>
+
+                <article class="rwanda-feature-card" style="background-image: url('/images/forest5.jpg');">
+                    <div class="rwanda-card-overlay"></div>
+                    <div class="rwanda-card-content">
+                        <div class="rwanda-card-icon">
+                            <i class="bi bi-wifi"></i>
+                        </div>
+                        <h3>Modern Amenities</h3>
+                        <p>Stay connected with modern infrastructure and facilities</p>
+                    </div>
+                </article>
+
+                <article class="rwanda-feature-card" style="background-image: url('/images/forest6.jpg');">
+                    <div class="rwanda-card-overlay"></div>
+                    <div class="rwanda-card-content">
+                        <div class="rwanda-card-icon">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                        <h3>Affordable Travel</h3>
+                        <p>Great value for an unforgettable experience</p>
+                    </div>
+                </article>
+            </div>
+
+            <div class="rwanda-actions-wrapper">
+                <div class="rwanda-actions">
+                    <a asp-page="/Customer/Explore" class="rwanda-action-btn">
+                        <i class="bi bi-star-fill"></i>
+                        <span>Natural Wonders</span>
+                    </a>
+                    <a asp-page="/Customer/Explore" class="rwanda-action-btn">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Safe Travel</span>
+                    </a>
+                    <a asp-page="/Customer/Explore" class="rwanda-action-btn">
+                        <i class="bi bi-wifi"></i>
+                        <span>Modern Amenities</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- New Feature 2: Travel Guide Section -->
+<section class="customer-section">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Travel Guide</p>
+            <h2>Your Complete Rwanda Experience</h2>
+            <p>Everything you need to know for an amazing stay</p>
+        </div>
+    </div>
+    <div class="travel-guide-grid">
+        <article class="guide-card">
+            <div class="guide-icon">
+                <i class="bi bi-map"></i>
+            </div>
+            <h3>Best Time to Visit</h3>
+            <p>Rwanda's climate is pleasant year-round. The dry seasons (June-September and December-February) are ideal for gorilla trekking and wildlife viewing.</p>
+        </article>
+        <article class="guide-card">
+            <div class="guide-icon">
+                <i class="bi bi-passport"></i>
+            </div>
+            <h3>Visa Information</h3>
+            <p>Most visitors can obtain a visa on arrival. Check requirements for your country and ensure your passport is valid for at least 6 months.</p>
+        </article>
+        <article class="guide-card">
+            <div class="guide-icon">
+                <i class="bi bi-currency-exchange"></i>
+            </div>
+            <h3>Currency & Payments</h3>
+            <p>Rwandan Franc (RWF) is the local currency. Credit cards are widely accepted, and ATMs are available in major cities.</p>
+        </article>
+    </div>
+</section>
+
+<!-- New Feature 3: Local Experiences Section -->
+<section class="customer-section">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Local Experiences</p>
+            <h2>Immerse Yourself in Rwanda</h2>
+            <p>Authentic experiences that connect you with local culture</p>
+        </div>
+    </div>
+    <div class="experiences-grid">
+        <article class="experience-card">
+            <div class="experience-image" style="background-image: url('/images/forest1.jpg');">
+                <div class="experience-overlay">
+                    <h3>Gorilla Trekking</h3>
+                    <p>Meet mountain gorillas in their natural habitat</p>
+                    <a asp-page="/Customer/Explore" class="btn btn-outline-light btn-sm">Learn More</a>
+                </div>
+            </div>
+        </article>
+        <article class="experience-card">
+            <div class="experience-image" style="background-image: url('/images/forest3.jpg');">
+                <div class="experience-overlay">
+                    <h3>Cultural Tours</h3>
+                    <p>Discover traditional Rwandan culture and history</p>
+                    <a asp-page="/Customer/Explore" class="btn btn-outline-light btn-sm">Learn More</a>
+                </div>
+            </div>
+        </article>
+        <article class="experience-card">
+            <div class="experience-image" style="background-image: url('/images/forest5.jpg');">
+                <div class="experience-overlay">
+                    <h3>Adventure Activities</h3>
+                    <p>Hiking, bird watching, and nature walks</p>
+                    <a asp-page="/Customer/Explore" class="btn btn-outline-light btn-sm">Learn More</a>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<section class="cta-band glass-panel feedback-cta-section">
+    <div class="feedback-cta-content">
+        <div>
+            <p class="eyebrow">We value your feedback</p>
+            <h2>Share your experience with us</h2>
+            <p>Your feedback helps us improve. Share your thoughts, suggestions, or request support.</p>
+        </div>
+        <div class="feedback-cta-form-wrapper">
+            <form method="post" asp-page="/Feedback/Submit" class="feedback-cta-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="userRole" value="Customer" />
+                <div class="feedback-cta-inputs">
+                    <input type="text" name="subject" placeholder="Subject" required />
+                    <textarea name="message" placeholder="Your feedback or support request..." rows="3" required></textarea>
+                </div>
+                <div class="feedback-cta-actions">
+                    <button type="submit" class="btn btn-gradient btn-lg">
+                        <i class="bi bi-send me-2"></i>
+                        Submit Feedback
+                    </button>
+                    <a asp-page="/Customer/Booking" class="btn btn-outline-light btn-lg">Book now</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+
+@section Scripts {
+    <script>
+        window.HRS = window.HRS || {};
+        window.HRS.heroInitialized = true;
+
+        // Hero image auto-slide carousel
+        (function() {
+            const heroCarousel = document.getElementById('heroCarousel');
+            if (!heroCarousel) return;
+            
+            const slides = heroCarousel.querySelectorAll('.hero-slide');
+            const dots = heroCarousel.querySelectorAll('.hero-dots span');
+            if (slides.length === 0) return;
+            
+            let currentSlide = 0;
+            const slideInterval = 5000; // 5 seconds
+            let autoSlideInterval;
+            
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    if (i === index) {
+                        slide.classList.add('active');
+                    } else {
+                        slide.classList.remove('active');
+                    }
+                });
+                if (dots.length > 0) {
+                    dots.forEach((dot, i) => {
+                        if (i === index) {
+                            dot.classList.add('active');
+                        } else {
+                            dot.classList.remove('active');
+                        }
+                    });
+                }
+            }
+            
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }
+            
+            function startAutoSlide() {
+                autoSlideInterval = setInterval(nextSlide, slideInterval);
+            }
+            
+            // Initialize first slide
+            showSlide(0);
+            
+            // Start auto-slide after 1 second
+            setTimeout(startAutoSlide, 1000);
+            
+            // Pause on hover
+            heroCarousel.addEventListener('mouseenter', () => {
+                if (autoSlideInterval) {
+                    clearInterval(autoSlideInterval);
+                }
+            });
+            
+            heroCarousel.addEventListener('mouseleave', () => {
+                startAutoSlide();
+            });
+            
+            // Dot navigation
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    if (autoSlideInterval) {
+                        clearInterval(autoSlideInterval);
+                    }
+                    currentSlide = index;
+                    showSlide(currentSlide);
+                    setTimeout(startAutoSlide, 1000);
+                });
+            });
+        })();
+
+        // Rooms carousel functionality
+        (function() {
+            const carousel = document.getElementById('roomsCarousel');
+            const prevBtn = document.querySelector('[data-carousel-button][data-direction="prev"]');
+            const nextBtn = document.querySelector('[data-carousel-button][data-direction="next"]');
+            const dots = document.querySelectorAll('.carousel-dots span');
+            
+            if (!carousel || !prevBtn || !nextBtn) return;
+
+            let currentIndex = 0;
+            const cardWidth = parseInt(carousel.dataset.cardWidth) || 360;
+            const gap = 24;
+            const totalCards = carousel.children.length;
+            
+            function getVisibleCards() {
+                return Math.floor(carousel.offsetWidth / (cardWidth + gap));
+            }
+            
+            function getMaxIndex() {
+                const visibleCards = getVisibleCards();
+                return Math.max(0, totalCards - visibleCards);
+            }
+
+            function updateCarousel() {
+                const visibleCards = getVisibleCards();
+                const maxIndex = getMaxIndex();
+                const translateX = -currentIndex * (cardWidth + gap);
+                carousel.style.transform = `translateX(${translateX}px)`;
+                carousel.style.transition = 'transform 0.3s ease';
+
+                // Update button states
+                prevBtn.disabled = currentIndex === 0;
+                nextBtn.disabled = currentIndex >= maxIndex;
+
+                // Update dots
+                const currentPage = Math.floor(currentIndex / visibleCards);
+                const totalPages = Math.ceil(totalCards / visibleCards);
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentPage);
+                });
+            }
+
+            prevBtn.addEventListener('click', () => {
+                const visibleCards = getVisibleCards();
+                if (currentIndex > 0) {
+                    currentIndex = Math.max(0, currentIndex - visibleCards);
+                    updateCarousel();
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                const visibleCards = getVisibleCards();
+                const maxIndex = getMaxIndex();
+                if (currentIndex < maxIndex) {
+                    currentIndex = Math.min(maxIndex, currentIndex + visibleCards);
+                    updateCarousel();
+                }
+            });
+
+            // Handle window resize
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const maxIndex = getMaxIndex();
+                    if (currentIndex > maxIndex) {
+                        currentIndex = maxIndex;
+                    }
+                    updateCarousel();
+                }, 250);
+            });
+
+            // Initialize
+            updateCarousel();
+        })();
+    </script>
+}
+

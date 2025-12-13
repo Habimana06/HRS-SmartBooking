@@ -1,0 +1,105 @@
+@page "/Manager/ManageRooms"
+@model HRS_SmartBooking.Pages.Manager.ManageRoomsModel
+@{
+    ViewData["Title"] = "Manage Rooms";
+}
+
+<section class="reception-page manager-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Inventory</p>
+            <h1>Manage rooms</h1>
+            <p>Advanced table with filters, badges, amenities count, and image tracker.</p>
+        </div>
+        <div class="header-actions">
+            <a asp-page="/Manager/AddRoom" class="btn btn-gradient">
+                <i class="bi bi-plus-square me-2"></i>
+                Add room
+            </a>
+        </div>
+    </header>
+
+    <form class="filter-bar">
+        <div class="filter-field">
+            <label>Room type</label>
+            <select>
+                <option>All</option>
+                <option>Suite</option>
+                <option>Deluxe</option>
+                <option>Standard</option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label>Status</label>
+            <select>
+                <option>All</option>
+                <option>Available</option>
+                <option>Occupied</option>
+                <option>Maintenance</option>
+                <option>Cleaning</option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label>Amenities</label>
+            <select>
+                <option>Any count</option>
+                <option>10+</option>
+                <option>15+</option>
+            </select>
+        </div>
+        <div class="filter-field full">
+            <label>Search</label>
+            <div class="input-icon">
+                <i class="bi bi-search"></i>
+                <input type="search" placeholder="Room #, room type, status" />
+            </div>
+        </div>
+        <button type="button" class="btn btn-outline-light">Apply</button>
+    </form>
+
+    <div class="data-card table-card">
+        <div class="card-header">
+            <h2>Room listing</h2>
+            <span class="badge badge-outline">@Model.Rooms.Count rooms</span>
+        </div>
+        <div class="responsive-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Room #</th>
+                        <th>Room type</th>
+                        <th>Price/night</th>
+                        <th>Status</th>
+                        <th>Amenities</th>
+                        <th>Images</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var room in Model.Rooms)
+                    {
+                        <tr>
+                            <td>@room.Number</td>
+                            <td>@room.Type</td>
+                            <td>@room.Price</td>
+                            <td>
+                                <span class="status @room.Status.Replace(" ", "").ToLower()">@room.Status</span>
+                            </td>
+                            <td><span class="badge">@room.AmenityCount</span></td>
+                            <td><span class="badge badge-outline">@room.ImageCount</span></td>
+                            <td class="actions">
+                                <a class="btn btn-icon btn-compact" asp-page="/Manager/AddRoom" asp-route-id="@room.RoomId" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn btn-icon btn-compact" title="Disable">
+                                    <i class="bi bi-slash-circle"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+

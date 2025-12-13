@@ -1,0 +1,75 @@
+@page "/Admin/Payments"
+@model HRS_SmartBooking.Pages.Admin.PaymentsModel
+@{
+    ViewData["Title"] = "Payments & Transactions";
+}
+
+<section class="reception-page admin-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">Payments</p>
+            <h1>Payments & transactions</h1>
+            <p>Monitor all payment events, status, and refunds.</p>
+        </div>
+        <div class="header-actions">
+            <a asp-page-handler="ExportCsv" class="btn btn-outline-light">Export CSV</a>
+            <a asp-page-handler="ExportPdf" class="btn btn-gradient">Export PDF</a>
+        </div>
+    </header>
+
+    <div class="data-card table-card">
+        <div class="card-header">
+            <h2>Transactions</h2>
+        </div>
+        <div class="responsive-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction</th>
+                        <th>Customer</th>
+                        <th>Type</th>
+                        <th>Room/Attraction</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Transactions != null && Model.Transactions.Any())
+                    {
+                        @foreach (var tx in Model.Transactions)
+                        {
+                        <tr>
+                            <td>@tx.TransactionId</td>
+                            <td>@tx.Customer</td>
+                            <td>@tx.Type</td>
+                            <td>@tx.Room</td>
+                            <td>@tx.Amount</td>
+                            <td>@tx.Date</td>
+                            <td>@tx.Method</td>
+                            <td><span class="status">@tx.Status</span></td>
+                            <td class="actions">
+                                <button class="btn btn-icon btn-compact" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-icon btn-compact" title="Refund">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center text-muted">No transactions found</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+

@@ -1,0 +1,70 @@
+@page "/Manager/StaffManagement"
+@model HRS_SmartBooking.Pages.Manager.StaffManagementModel
+@{
+    ViewData["Title"] = "Staff Management";
+}
+
+<section class="reception-page manager-page">
+    <header class="reception-header">
+        <div>
+            <p class="eyebrow">People</p>
+            <h1>Staff management</h1>
+            <p>Roles, departments, permissions, and status chips.</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline-light">Add staff</button>
+            <button class="btn btn-gradient">Invite via email</button>
+        </div>
+    </header>
+
+    <div class="data-card table-card">
+        <div class="card-header">
+            <h2>Staff list</h2>
+            <span class="badge badge-outline">@Model.Staff.Count members</span>
+        </div>
+        <div class="responsive-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Department</th>
+                        <th>Permissions</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Staff.Any())
+                    {
+                        @foreach (var staff in Model.Staff)
+                        {
+                            <tr>
+                                <td>@staff.Name</td>
+                                <td>@staff.Role</td>
+                                <td><span class="status @(staff.Status == "Active" ? "active" : "inactive")">@staff.Status</span></td>
+                                <td>@staff.Department</td>
+                                <td>@staff.Permissions</td>
+                                <td class="actions">
+                                    <button class="btn btn-icon btn-compact" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-icon btn-compact" title="Remove">
+                                        <i class="bi bi-person-x"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No staff members found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
