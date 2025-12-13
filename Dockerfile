@@ -6,20 +6,20 @@ ENV ASPNETCORE_URLS=http://+:${PORT:-8080}
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy project file from HRS-SmartBooking/HRSAPI folder
-COPY ["HRS-SmartBooking/HRSAPI/HRSAPI.csproj", "HRS-SmartBooking/HRSAPI/"]
+# Copy project file
+COPY ["HRSAPI.csproj", "./"]
 
 # Restore dependencies
-RUN dotnet restore "HRS-SmartBooking/HRSAPI/HRSAPI.csproj"
+RUN dotnet restore "HRSAPI.csproj"
 
 # Copy all source code
 COPY . .
 
 # Build
-RUN dotnet build "HRS-SmartBooking/HRSAPI/HRSAPI.csproj" -c Release -o /app/build
+RUN dotnet build "HRSAPI.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "HRS-SmartBooking/HRSAPI/HRSAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "HRSAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
