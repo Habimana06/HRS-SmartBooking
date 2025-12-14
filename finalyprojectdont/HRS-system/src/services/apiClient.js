@@ -8,6 +8,9 @@ if (baseURL.startsWith("http") && !baseURL.endsWith("/api")) {
   baseURL = baseURL.endsWith("/") ? baseURL + "api" : baseURL + "/api";
 }
 
+// Debug: Log API base URL (helps verify env var is loaded)
+console.log("🔗 API Base URL:", baseURL, "| Env Var:", import.meta.env.VITE_API_BASE_URL || "NOT SET");
+
 const apiClient = axios.create({
   baseURL,
   withCredentials: true,
