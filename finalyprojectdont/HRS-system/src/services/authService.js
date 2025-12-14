@@ -1,9 +1,28 @@
 import apiClient from "./apiClient.js";
 
 export const authService = {
-  async login(email, password, code) {
-    const { data } = await apiClient.post("/auth/login", { email, password, code });
-    return data;
+  async login(email, password, code = null) {
+    try {
+      const { data } = await apiClient.post("/auth/login", { email, password, code });
+      return { success: true, data };
+    } catch (error) {
+      const errorData = error?.response?.data;
+      
+      if (errorData?.requiresVerification) {
+        return {
+          success: false,
+          requiresVerification: true,
+          userId: errorData.userId,
+          email: errorData.email,
+          error: errorData.error || "Verification code required"
+        };
+      }
+      
+      return {
+        success: false,
+        error: errorData?.error || "Login failed. Please try again."
+      };
+    }
   },
 
   async register(userData) {
@@ -11,50 +30,97 @@ export const authService = {
       const { data } = await apiClient.post("/auth/register", userData);
       return { success: true, data };
     } catch (error) {
+      const errorData = error?.response?.data;
       return {
         success: false,
-        error: error?.response?.data?.error || "Registration failed. Please try again."
+        error: errorData?.error || "Registration failed. Please try again."
       };
     }
   },
 
   async me() {
-    const { data } = await apiClient.get("/auth/me");
-    return data;
+    try {
+      const { data } = await apiClient.get("/auth/me");
+      return data;
+    } catch (error) {
+      return null;
+    }
   },
 
   async logout() {
-    await apiClient.post("/auth/logout");
+    try {
+      await apiClient.post("/auth/logout");
+      return { success: true };
+    } catch (error) {
+      return { success: false };
+    }
   },
 
   async sendVerificationCode(email) {
-    const { data } = await apiClient.post("/auth/send-verification-code", { email });
-    return data;
+    try {
+      const { data } = await apiClient.post("/auth/send-verification-code", { email });
+      return { success: true, data };
+    } catch (error) {
+      const errorData = error?.response?.data;
+      return {
+        success: false,
+        error: errorData?.error || "Failed to send verification code"
+      };
+    }
   },
 
   async verifyEmail(email, code) {
-    const { data } = await apiClient.post("/auth/verify-email", { email, code });
-    return data;
+    try {
+      const { data } = await apiClient.post("/auth/verify-email", { email, code });
+      return { success: true, data };
+    } catch (error) {
+      const errorData = error?.response?.data;
+      return {
+        success: false,
+        error: errorData?.error || "Email verification failed"
+      };
+    }
   },
 
   async forgotPassword(email) {
-    const { data } = await apiClient.post("/auth/forgot-password", { email });
-    return data;
+    try {
+      const { data } = await apiClient.post("/auth/forgot-password", { email });
+      return { success: true, data };
+    } catch (error) {
+      const errorData = error?.response?.data;
+      return {
+        success: false,
+        error: errorData?.error || "Failed to send reset email"
+      };
+    }
   },
 
   async verifyResetToken(token, email) {
-    const { data } = await apiClient.post("/auth/verify-reset-token", { token, email });
-    return data;
+    try {
+      const { data } = await apiClient.post("/auth/verify-reset-token", { token, email });
+      return { success: true, data };
+    } catch (error) {
+      const errorData = error?.response?.data;
+      return {
+        success: false,
+        error: errorData?.error || "Invalid or expired reset token"
+      };
+    }
   },
 
   async resetPassword(token, email, newPassword, confirmPassword) {
-    const { data } = await apiClient.post("/auth/reset-password", { 
-      token, 
-      email, 
-      newPassword, 
-      confirmPassword 
-    });
-    return data;
+    try {
+      const { data } = await apiClient.post("/auth/reset-password", { 
+        token, email, newPassword, confirmPassword 
+      });
+      return { success: true, data };
+    } catch (error) {
+      const errorData = error?.response?.data;
+      return {
+        success: false,
+        error: errorData?.error || "Failed to reset password"
+      };
+    }
   }
 };
 

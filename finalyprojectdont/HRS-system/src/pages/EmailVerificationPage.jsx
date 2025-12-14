@@ -127,19 +127,20 @@ export default function EmailVerificationPage() {
     setError("");
     setLoading(true);
 
-    try {
-      console.log("Verifying code for:", email);
+    console.log("Verifying code for:", email);
 
-      // New flow: call login with code to finalize auth
-      const loginData = await authService.login(email, password, code);
+    // New flow: call login with code to finalize auth
+    const loginResult = await authService.login(email, password, code);
+    
+    if (loginResult.success) {
       console.log("✓ Login successful with code");
-      let freshUser = loginData;
+      let freshUser = loginResult.data;
       try {
         freshUser = await authService.me();
       } catch (refreshErr) {
         console.warn("Could not refresh auth after verification login, using login payload", refreshErr?.message);
       }
-      setUser(freshUser || loginData);
+      setUser(freshUser || loginResult.data);
       
       // Clear storage
       sessionStorage.removeItem("verify_email");
@@ -147,7 +148,7 @@ export default function EmailVerificationPage() {
       sessionStorage.removeItem("verify_role");
       
       // Redirect
-      switch ((freshUser || loginData).role) {
+      switch ((freshUser || loginResult.data)?.role) {
         case "Admin":
           navigate("/admin/dashboard", { replace: true });
           break;
@@ -162,9 +163,9 @@ export default function EmailVerificationPage() {
           navigate("/customer/home", { replace: true });
           break;
       }
-    } catch (err) {
-      console.error("✗ Verification failed:", err);
-      setError(err.response?.data?.error || "Invalid or expired code. Please try again.");
+    } else {
+      console.error("✗ Verification failed:", loginResult);
+      setError(loginResult.error || "Invalid or expired code. Please try again.");
       setLoading(false);
     }
   };
@@ -175,17 +176,17 @@ export default function EmailVerificationPage() {
     setResendLoading(true);
     setError("");
 
-    try {
-      // Request a new code by calling login without code
-      await authService.login(email, password);
+    // Request a new code by calling login without code
+    const result = await authService.login(email, password);
+    
+    if (result.success || result.requiresVerification) {
       setResendCooldown(60);
       setExpiryTime(10 * 60);
       alert("Verification code sent! Please check your email.");
-    } catch (err) {
-      setError(err.response?.data?.error || "Failed to resend code. Please try again.");
-    } finally {
-      setResendLoading(false);
+    } else {
+      setError(result.error || "Failed to resend code. Please try again.");
     }
+    setResendLoading(false);
   };
 
   // Show loading if not initialized

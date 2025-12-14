@@ -54,9 +54,10 @@ export default function EmailVerificationModal({
     setError("");
     setLoading(true);
 
-    try {
-      // Verify the code
-      const verifyResult = await authService.verifyEmail(email, code);
+    // Verify the code
+    const verifyResult = await authService.verifyEmail(email, code);
+    
+    if (verifyResult.success) {
       console.log("Verification successful:", verifyResult);
       
       // After successful verification, try to login automatically
@@ -68,14 +69,14 @@ export default function EmailVerificationModal({
       } catch (loginErr) {
         // Login retry failed - keep modal open and show error
         console.error("Login retry failed:", loginErr);
-        const errorMsg = loginErr.response?.data?.error || loginErr.message || "Verification successful, but login failed. Please try logging in again.";
+        const errorMsg = loginErr?.response?.data?.error || loginErr?.message || "Verification successful, but login failed. Please try logging in again.";
         setError(errorMsg);
         setLoading(false);
         // Don't close modal - let user try again or manually login
       }
-    } catch (err) {
-      console.error("Verification failed:", err);
-      const errorMsg = err.response?.data?.error || err.message || "Invalid or expired code. Please try again.";
+    } else {
+      console.error("Verification failed:", verifyResult);
+      const errorMsg = verifyResult.error || "Invalid or expired code. Please try again.";
       setError(errorMsg);
       setLoading(false);
     }
@@ -87,16 +88,16 @@ export default function EmailVerificationModal({
     setResendLoading(true);
     setError("");
 
-    try {
-      await authService.sendVerificationCode(email);
+    const result = await authService.sendVerificationCode(email);
+    
+    if (result.success) {
       setResendCooldown(60);
       setExpiryTime(10 * 60);
       alert("Verification code sent! Please check your email.");
-    } catch (err) {
-      setError(err.response?.data?.error || "Failed to resend code. Please try again.");
-    } finally {
-      setResendLoading(false);
+    } else {
+      setError(result.error || "Failed to resend code. Please try again.");
     }
+    setResendLoading(false);
   };
 
   if (!isOpen) return null;

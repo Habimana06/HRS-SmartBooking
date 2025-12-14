@@ -43,31 +43,41 @@ export default function RegisterPage() {
 
     setLoading(true);
 
-    try {
-      const result = await authService.register({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber || null,
-        password: formData.password,
-      });
+    const result = await authService.register({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phoneNumber: formData.phoneNumber || null,
+      password: formData.password,
+    });
 
-      if (result.success) {
-        if (result.data?.requiresVerification) {
-          sessionStorage.setItem("verify_email", formData.email);
-          sessionStorage.setItem("verify_password", formData.password);
-          navigate("/verify-email", { replace: true });
-        } else {
-          const loginData = await authService.login(formData.email, formData.password);
-          setUser(loginData);
-          navigate("/customer/home");
-        }
+    if (result.success) {
+      if (result.data?.requiresVerification) {
+        sessionStorage.setItem("verify_email", formData.email);
+        sessionStorage.setItem("verify_password", formData.password);
+        navigate("/verify-email", { replace: true });
       } else {
-        setError(result.error || "Registration failed");
-        setLoading(false);
+        // Auto-login after successful registration
+        const loginResult = await authService.login(formData.email, formData.password);
+        if (loginResult.success) {
+          let freshUser = loginResult.data;
+          try {
+            freshUser = await authService.me();
+          } catch (refreshErr) {
+            console.warn("Could not refresh auth after registration login", refreshErr?.message);
+          }
+          setUser(freshUser || loginResult.data);
+          navigate("/customer/home");
+        } else {
+          // If auto-login fails, redirect to login page
+          setError("Registration successful! Please log in.");
+          setTimeout(() => {
+            navigate("/login");
+          }, 2000);
+        }
       }
-    } catch (err) {
-      setError(err.response?.data?.error || "Registration failed. Please try again.");
+    } else {
+      setError(result.error || "Registration failed");
       setLoading(false);
     }
   };

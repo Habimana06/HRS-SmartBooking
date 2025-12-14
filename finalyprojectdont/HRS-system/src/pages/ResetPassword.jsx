@@ -30,15 +30,15 @@ export default function ResetPassword() {
 
     // Verify token
     const verifyToken = async () => {
-      try {
-        await authService.verifyResetToken(tokenParam, decodeURIComponent(emailParam));
+      const result = await authService.verifyResetToken(tokenParam, decodeURIComponent(emailParam));
+      
+      if (result.success) {
         setTokenValid(true);
-      } catch (err) {
-        setError(err?.response?.data?.error || "Invalid or expired reset link. Please request a new password reset.");
+      } else {
+        setError(result.error || "Invalid or expired reset link. Please request a new password reset.");
         setTokenValid(false);
-      } finally {
-        setVerifying(false);
       }
+      setVerifying(false);
     };
 
     verifyToken();
@@ -60,17 +60,17 @@ export default function ResetPassword() {
 
     setLoading(true);
 
-    try {
-      await authService.resetPassword(token, email, newPassword, confirmPassword);
+    const result = await authService.resetPassword(token, email, newPassword, confirmPassword);
+    
+    if (result.success) {
       setSuccess(true);
       
       // Redirect to login after 2 seconds
       setTimeout(() => {
         navigate("/login");
       }, 2000);
-    } catch (err) {
-      setError(err?.response?.data?.error || "Failed to reset password. Please try again.");
-    } finally {
+    } else {
+      setError(result.error || "Failed to reset password. Please try again.");
       setLoading(false);
     }
   };

@@ -1,8 +1,15 @@
 import axios from "axios";
 
 // Use relative URL in development (via Vite proxy) or absolute URL from env
+// Ensure /api prefix is included for absolute URLs
+let baseURL = import.meta.env.VITE_API_BASE_URL || "/api";
+if (baseURL.startsWith("http") && !baseURL.endsWith("/api")) {
+  // If it's an absolute URL and doesn't end with /api, append it
+  baseURL = baseURL.endsWith("/") ? baseURL + "api" : baseURL + "/api";
+}
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
+  baseURL,
   withCredentials: true,
   timeout: 30000 // 30 second timeout for better reliability
 });

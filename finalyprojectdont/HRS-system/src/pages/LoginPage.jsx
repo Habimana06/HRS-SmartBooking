@@ -19,26 +19,35 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    try {
-      const data = await authService.login(email, password);
-      if (data?.requiresVerification) {
+    const result = await authService.login(email, password);
+    
+    if (result.success) {
+      // Check if verification is required
+      if (result.data?.requiresVerification || result.requiresVerification) {
+        const emailToUse = result.email || result.data?.email || email;
+        const passwordToUse = password;
+        
+        sessionStorage.setItem("verify_email", emailToUse);
+        sessionStorage.setItem("verify_password", passwordToUse);
+        
         navigate("/verify-email", { 
           replace: true,
-          state: { email, password }
+          state: { email: emailToUse, password: passwordToUse }
         });
         setLoading(false);
         return;
       }
 
-      let freshUser = data;
+      // Login successful, get fresh user data
+      let freshUser = result.data;
       try {
         freshUser = await authService.me();
       } catch (refreshErr) {
         console.warn("Could not refresh auth after login, using login payload", refreshErr?.message);
       }
-      setUser(freshUser || data);
+      setUser(freshUser || result.data);
       
-      switch ((freshUser || data).role) {
+      switch ((freshUser || result.data)?.role) {
         case "Admin":
           navigate("/admin/dashboard");
           break;
@@ -53,11 +62,10 @@ export default function LoginPage() {
           navigate("/customer/home");
           break;
       }
-    } catch (err) {
-      const errorData = err.response?.data;
-      
-      if (errorData?.requiresVerification) {
-        const emailToUse = errorData.email || email;
+    } else {
+      // Handle error response
+      if (result.requiresVerification) {
+        const emailToUse = result.email || email;
         const passwordToUse = password;
         
         sessionStorage.setItem("verify_email", emailToUse);
@@ -70,12 +78,15 @@ export default function LoginPage() {
             password: passwordToUse
           }
         });
+        setLoading(false);
         return;
       } else {
-        if (errorData?.loginDisabled) {
+        // Check for login disabled error
+        const errorMsg = result.error || "Invalid email or password";
+        if (errorMsg.includes("disabled") || errorMsg.includes("login access")) {
           setError("Your account login access has been disabled. Please contact your administrator or support team for assistance.");
         } else {
-          setError(errorData?.error || "Invalid email or password");
+          setError(errorMsg);
         }
         setLoading(false);
       }

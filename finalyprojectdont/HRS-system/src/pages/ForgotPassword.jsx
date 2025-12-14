@@ -43,17 +43,17 @@ export default function ForgotPassword() {
     setLoading(true);
     setError("");
 
-    try {
-      await authService.forgotPassword(email);
+    const result = await authService.forgotPassword(email);
+    
+    if (result.success) {
       setSubmitted(true);
-    } catch (err) {
-      const errorMessage = err?.response?.data?.error || "Failed to send reset link. Please try again.";
+    } else {
+      const errorMessage = result.error || "Failed to send reset link. Please try again.";
       if (errorMessage.includes("customers") || errorMessage.includes("administrator")) {
         setError(errorMessage);
       } else {
-        setError("An error occurred. Please try again.");
+        setError(errorMessage);
       }
-    } finally {
       setLoading(false);
     }
   };
